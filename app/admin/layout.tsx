@@ -11,19 +11,16 @@ export default async function AdminLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  // Check if the current path is the login page
-  // We need to allow access to login page without authentication
+  if (!session) {
+    redirect("/login");
+  }
 
   return (
     <SessionProvider>
-      {session ? (
-        <div className="min-h-screen bg-ramadan-navy">
-          <Sidebar />
-          <main className="mr-64 min-h-screen p-8">{children}</main>
-        </div>
-      ) : (
-        children
-      )}
+      <div className="min-h-screen bg-ramadan-navy">
+        <Sidebar />
+        <main className="mr-64 min-h-screen p-8">{children}</main>
+      </div>
     </SessionProvider>
   );
 }
