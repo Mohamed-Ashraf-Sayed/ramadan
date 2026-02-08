@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     await writeFile(uploadPath, buffer);
 
     return NextResponse.json({
-      url: `/uploads/${filename}`,
+      url: `/api/files/${filename}`,
       mediaType: isImage ? "image" : "video",
       filename,
     });
