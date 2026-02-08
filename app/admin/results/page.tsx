@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button, Select } from "@/components/ui";
+import { Button, Select, useToast, useConfirm } from "@/components/ui";
 import type { Submission, Quiz, Question } from "@/types";
 import { getMediaUrl } from "@/lib/media";
 
@@ -13,6 +13,8 @@ interface SubmissionDetails extends Omit<Submission, 'quiz'> {
 }
 
 export default function AdminResultsPage() {
+  const { toast } = useToast();
+  const { confirm } = useConfirm();
   const [submissions, setSubmissions] = useState<(Submission & { quiz: Quiz })[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<string>("all");
@@ -75,7 +77,13 @@ export default function AdminResultsPage() {
   }
 
   async function deleteSubmission(id: number) {
-    if (!confirm("هل أنت متأكد من حذف هذه النتيجة؟")) return;
+    const ok = await confirm({
+      title: "حذف النتيجة",
+      message: "هل أنت متأكد من حذف هذه النتيجة؟",
+      confirmText: "حذف",
+      variant: "danger",
+    });
+    if (!ok) return;
 
     try {
       const response = await fetch(`/api/submissions/${id}`, {
@@ -84,6 +92,7 @@ export default function AdminResultsPage() {
 
       if (response.ok) {
         fetchSubmissions();
+        toast("تم حذف النتيجة بنجاح", "success");
         if (viewingSubmission?.id === id) {
           setViewingSubmission(null);
         }

@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CardContent } from "@/components/ui";
+import { Button, Card, CardContent, useToast } from "@/components/ui";
 import QuestionRenderer from "@/components/quiz/QuestionRenderer";
 import type { Quiz, Question, ParticipantInfo } from "@/types";
 
 export default function QuizStartPage() {
   const router = useRouter();
   const params = useParams();
+  const { toast } = useToast();
   const quizId = params.id as string;
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -129,13 +130,13 @@ export default function QuizStartPage() {
         router.push(`/result/${result.id}`);
       } else {
         if (!isAutoSubmit) {
-          alert("حدث خطأ أثناء إرسال الإجابات");
+          toast("حدث خطأ أثناء إرسال الإجابات", "error");
         }
       }
     } catch (error) {
       console.error("Error submitting quiz:", error);
       if (!isAutoSubmit) {
-        alert("حدث خطأ أثناء إرسال الإجابات");
+        toast("حدث خطأ أثناء إرسال الإجابات", "error");
       }
     } finally {
       setSubmitting(false);

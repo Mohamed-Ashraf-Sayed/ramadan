@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button, Card, CardContent } from "@/components/ui";
+import { Button, Card, CardContent, useToast, useConfirm } from "@/components/ui";
 import type { Quiz } from "@/types";
 
 export default function AdminQuizzesPage() {
+  const { toast } = useToast();
+  const { confirm } = useConfirm();
   const [quizzes, setQuizzes] = useState<(Quiz & { _count: { questions: number; submissions: number } })[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +46,13 @@ export default function AdminQuizzesPage() {
   }
 
   async function deleteQuiz(id: number) {
-    if (!confirm("هل أنت متأكد من حذف هذا الاختبار؟")) return;
+    const ok = await confirm({
+      title: "حذف الاختبار",
+      message: "هل أنت متأكد من حذف هذا الاختبار؟ سيتم حذف جميع الأسئلة والنتائج المرتبطة.",
+      confirmText: "حذف",
+      variant: "danger",
+    });
+    if (!ok) return;
 
     try {
       const response = await fetch(`/api/quizzes/${id}`, {
@@ -53,6 +61,7 @@ export default function AdminQuizzesPage() {
 
       if (response.ok) {
         fetchQuizzes();
+        toast("تم حذف الاختبار بنجاح", "success");
       }
     } catch (error) {
       console.error("Error deleting quiz:", error);

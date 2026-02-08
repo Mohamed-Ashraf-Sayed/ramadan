@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Input, Textarea, Select, Card, CardContent, CardHeader, CardFooter } from "@/components/ui";
+import { Button, Input, Textarea, Select, Card, CardContent, CardHeader, CardFooter, useToast, useConfirm } from "@/components/ui";
 import type { Quiz, Question, QuestionType } from "@/types";
 import { getMediaUrl } from "@/lib/media";
 
@@ -17,6 +17,8 @@ const questionTypeOptions = [
 export default function EditQuizPage() {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
+  const { confirm } = useConfirm();
   const quizId = params.id as string;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -100,11 +102,11 @@ export default function EditQuizPage() {
         });
       } else {
         const error = await response.json();
-        alert(error.error || "حدث خطأ أثناء رفع الملف");
+        toast(error.error || "حدث خطأ أثناء رفع الملف", "error");
       }
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("حدث خطأ أثناء رفع الملف");
+      toast("حدث خطأ أثناء رفع الملف", "error");
     } finally {
       setUploading(false);
     }
@@ -112,17 +114,17 @@ export default function EditQuizPage() {
 
   async function addQuestion() {
     if (!newQuestion.text.trim() && newQuestion.type !== "IMAGE_TEXT") {
-      alert("يرجى إدخال نص السؤال");
+      toast("يرجى إدخال نص السؤال", "warning");
       return;
     }
 
     if (newQuestion.type === "IMAGE_TEXT" && !newQuestion.mediaUrl) {
-      alert("يرجى رفع صورة أو فيديو");
+      toast("يرجى رفع صورة أو فيديو", "warning");
       return;
     }
 
     if (newQuestion.type === "IMAGE_TEXT" && !newQuestion.correctAnswer.trim()) {
-      alert("يرجى إدخال الإجابة الصحيحة");
+      toast("يرجى إدخال الإجابة الصحيحة", "warning");
       return;
     }
 
@@ -135,12 +137,12 @@ export default function EditQuizPage() {
       if (newQuestion.type === "MULTIPLE_CHOICE") {
         const validOptions = newQuestion.options.filter(o => o.trim());
         if (validOptions.length < 2) {
-          alert("يرجى إدخال خيارين على الأقل");
+          toast("يرجى إدخال خيارين على الأقل", "warning");
           setSaving(false);
           return;
         }
         if (!newQuestion.correctAnswer) {
-          alert("يرجى اختيار الإجابة الصحيحة");
+          toast("يرجى اختيار الإجابة الصحيحة", "warning");
           setSaving(false);
           return;
         }
@@ -150,7 +152,7 @@ export default function EditQuizPage() {
       } else if (newQuestion.type === "ORDERING") {
         const validOptions = newQuestion.options.filter(o => o.trim());
         if (validOptions.length < 2) {
-          alert("يرجى إدخال عنصرين على الأقل للترتيب");
+          toast("يرجى إدخال عنصرين على الأقل للترتيب", "warning");
           setSaving(false);
           return;
         }
@@ -192,21 +194,30 @@ export default function EditQuizPage() {
         setShowNewQuestion(false);
         if (fileInputRef.current) fileInputRef.current.value = "";
       } else {
-        alert("حدث خطأ أثناء إضافة السؤال");
+        toast("حدث خطأ أثناء إضافة السؤال", "error");
       }
     } catch (error) {
       console.error("Error adding question:", error);
-      alert("حدث خطأ أثناء إضافة السؤال");
+      toast("حدث خطأ أثناء إضافة السؤال", "error");
     } finally {
       setSaving(false);
     }
   }
 
   async function deleteQuestion(id: number) {
-    if (!confirm("هل أنت متأكد من حذف هذا السؤال؟")) return;
+    const ok = await confirm({
+      title: "حذف السؤال",
+      message: "هل أنت متأكد من حذف هذا السؤال؟ لا يمكن التراجع عن هذا الإجراء.",
+      confirmText: "حذف",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       const response = await fetch(`/api/questions/${id}`, { method: "DELETE" });
-      if (response.ok) await fetchQuiz();
+      if (response.ok) {
+        await fetchQuiz();
+        toast("تم حذف السؤال بنجاح", "success");
+      }
     } catch (error) {
       console.error("Error deleting question:", error);
     }

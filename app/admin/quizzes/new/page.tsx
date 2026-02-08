@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Input, Textarea, Card, CardContent, CardHeader, CardFooter } from "@/components/ui";
+import { Button, Input, Textarea, Card, CardContent, CardHeader, CardFooter, useToast } from "@/components/ui";
 
 export default function NewQuizPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -49,11 +50,11 @@ export default function NewQuizPage() {
         const quiz = await response.json();
         router.push(`/admin/quizzes/${quiz.id}`);
       } else {
-        alert("حدث خطأ أثناء إنشاء الاختبار");
+        toast("حدث خطأ أثناء إنشاء الاختبار", "error");
       }
     } catch (error) {
       console.error("Error creating quiz:", error);
-      alert("حدث خطأ أثناء إنشاء الاختبار");
+      toast("حدث خطأ أثناء إنشاء الاختبار", "error");
     } finally {
       setLoading(false);
     }
