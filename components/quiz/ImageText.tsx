@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import type { Question } from "@/types";
+import { getMediaUrl } from "@/lib/media";
 
 interface ImageTextProps {
   question: Question;
@@ -52,7 +53,7 @@ export default function ImageText({
         <div className="rounded-2xl overflow-hidden border border-ramadan-gold/20">
           {question.mediaType === "video" ? (
             <video
-              src={question.mediaUrl}
+              src={getMediaUrl(question.mediaUrl)}
               controls
               className="w-full max-h-[400px] object-contain bg-black"
               playsInline
@@ -60,7 +61,7 @@ export default function ImageText({
           ) : (
             <div className="relative w-full" style={{ minHeight: "200px", maxHeight: "400px" }}>
               <Image
-                src={question.mediaUrl}
+                src={getMediaUrl(question.mediaUrl)}
                 alt={question.text || "صورة السؤال"}
                 width={800}
                 height={400}

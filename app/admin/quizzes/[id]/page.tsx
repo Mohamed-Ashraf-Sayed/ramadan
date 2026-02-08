@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button, Input, Textarea, Select, Card, CardContent, CardHeader, CardFooter } from "@/components/ui";
 import type { Quiz, Question, QuestionType } from "@/types";
+import { getMediaUrl } from "@/lib/media";
 
 const questionTypeOptions = [
   { value: "MULTIPLE_CHOICE", label: "اختيار من متعدد" },
@@ -446,9 +447,9 @@ export default function EditQuizPage() {
                   {question.type === "IMAGE_TEXT" && question.mediaUrl && (
                     <div className="mb-2 rounded-lg overflow-hidden border border-ramadan-gold/20 inline-block">
                       {question.mediaType === "video" ? (
-                        <video src={question.mediaUrl} className="h-24 object-cover" />
+                        <video src={getMediaUrl(question.mediaUrl)} className="h-24 object-cover" />
                       ) : (
-                        <Image src={question.mediaUrl} alt="" width={150} height={96} className="h-24 w-auto object-cover" />
+                        <Image src={getMediaUrl(question.mediaUrl)} alt="" width={150} height={96} className="h-24 w-auto object-cover" />
                       )}
                     </div>
                   )}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button, Select } from "@/components/ui";
 import type { Submission, Quiz, Question } from "@/types";
+import { getMediaUrl } from "@/lib/media";
 
 interface SubmissionDetails extends Omit<Submission, 'quiz'> {
   quiz: {
@@ -363,14 +364,14 @@ export default function AdminResultsPage() {
                                 <div className="mb-3 rounded-lg overflow-hidden border border-white/10 max-w-sm">
                                   {question.mediaType === "video" ? (
                                     <video
-                                      src={question.mediaUrl}
+                                      src={getMediaUrl(question.mediaUrl)}
                                       controls
                                       className="w-full max-h-48 object-contain bg-black/30"
                                     />
                                   ) : (
                                     <div className="relative w-full h-40">
                                       <Image
-                                        src={question.mediaUrl}
+                                        src={getMediaUrl(question.mediaUrl)}
                                         alt={question.text}
                                         fill
                                         className="object-contain"
