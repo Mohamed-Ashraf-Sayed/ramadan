@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 // GET /api/questions - Get questions for a quiz
 export async function GET(request: NextRequest) {
@@ -31,6 +32,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/questions - Create a new question (Admin only)
 export async function POST(request: NextRequest) {
+  const { error: authError } = await requireAdmin();
+  if (authError) return authError;
+
   try {
     const body = await request.json();
     const { quizId, type, text, options, correctAnswer, points = 1, order, mediaUrl, mediaType } = body;

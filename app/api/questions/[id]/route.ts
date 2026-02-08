@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 // GET /api/questions/[id] - Get a single question
 export async function GET(
@@ -32,6 +33,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { error: authError } = await requireAdmin();
+  if (authError) return authError;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -64,6 +68,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { error: authError } = await requireAdmin();
+  if (authError) return authError;
+
   try {
     const { id } = await params;
 

@@ -1,5 +1,7 @@
 import { NextAuthOptions } from "next-auth";
+import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
@@ -62,3 +64,11 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
+export async function requireAdmin() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { error: NextResponse.json({ error: "غير مصرح" }, { status: 401 }), session: null };
+  }
+  return { error: null, session };
+}
