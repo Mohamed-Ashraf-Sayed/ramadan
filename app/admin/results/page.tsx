@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { Button, Select } from "@/components/ui";
 import type { Submission, Quiz, Question } from "@/types";
 import { getMediaUrl } from "@/lib/media";
@@ -370,11 +369,10 @@ export default function AdminResultsPage() {
                                     />
                                   ) : (
                                     <div className="relative w-full h-40">
-                                      <Image
+                                      <img
                                         src={getMediaUrl(question.mediaUrl)}
                                         alt={question.text}
-                                        fill
-                                        className="object-contain"
+                                        className="w-full h-full object-contain"
                                       />
                                     </div>
                                   )}

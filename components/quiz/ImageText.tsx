@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import type { Question } from "@/types";
 import { getMediaUrl } from "@/lib/media";
 
@@ -60,13 +59,10 @@ export default function ImageText({
             />
           ) : (
             <div className="relative w-full" style={{ minHeight: "200px", maxHeight: "400px" }}>
-              <Image
+              <img
                 src={getMediaUrl(question.mediaUrl)}
                 alt={question.text || "صورة السؤال"}
-                width={800}
-                height={400}
                 className="w-full h-auto max-h-[400px] object-contain"
-                style={{ objectFit: "contain" }}
               />
             </div>
           )}

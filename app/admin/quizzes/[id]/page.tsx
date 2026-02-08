@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Button, Input, Textarea, Select, Card, CardContent, CardHeader, CardFooter } from "@/components/ui";
 import type { Quiz, Question, QuestionType } from "@/types";
 import { getMediaUrl } from "@/lib/media";
@@ -352,7 +351,7 @@ export default function EditQuizPage() {
                     {newQuestion.mediaType === "video" ? (
                       <video src={newQuestion.mediaUrl} controls className="w-full max-h-64 object-contain bg-black" />
                     ) : (
-                      <Image src={newQuestion.mediaUrl} alt="معاينة" width={600} height={300} className="w-full max-h-64 object-contain" />
+                      <img src={newQuestion.mediaUrl} alt="معاينة" className="w-full max-h-64 object-contain" />
                     )}
                   </div>
                 )}
@@ -449,7 +448,7 @@ export default function EditQuizPage() {
                       {question.mediaType === "video" ? (
                         <video src={getMediaUrl(question.mediaUrl)} className="h-24 object-cover" />
                       ) : (
-                        <Image src={getMediaUrl(question.mediaUrl)} alt="" width={150} height={96} className="h-24 w-auto object-cover" />
+                        <img src={getMediaUrl(question.mediaUrl)} alt="" className="h-24 w-auto object-cover" />
                       )}
                     </div>
                   )}
