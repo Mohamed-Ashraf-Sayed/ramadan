@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Quiz {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String?      @db.Text
+  timeLimit   Int?         // Time limit in minutes (null = no limit)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  questions   Question[]
+  submissions Submission[]
+}
+
+model Question {
+  id            Int          @id @default(autoincrement())
+  quizId        Int
+  quiz          Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  type          QuestionType
+  text          String       @db.Text
+  options       Json?
+  correctAnswer Json
+  mediaUrl      String?      @db.Text  // URL for image/video
+  mediaType     String?      // "image" or "video"
+  points        Int          @default(1)
+  order         Int
+
+  @@index([quizId])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  ORDERING
+  IMAGE_TEXT
+}
+
+model Submission {
+  id          Int      @id @default(autoincrement())
+  quizId      Int
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  name        String
+  email       String
+  phone       String
+
+  answers     Json
+  score       Int
+  totalPoints Int
+  percentage  Float
+
+  createdAt   DateTime @default(now())
+
+  @@index([quizId])
+}
