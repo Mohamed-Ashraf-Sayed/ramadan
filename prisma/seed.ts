@@ -1,4 +1,4 @@
-import { PrismaClient, QuestionType } from "@prisma/client";
+import { PrismaClient, Prisma, QuestionType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -85,7 +85,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "أول من أسلم من الرجال هو سيدنا أبو بكر الصديق رضي الله عنه",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(true),
             points: 1,
             order: 9,
@@ -93,7 +93,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "ليلة القدر تكون في العشر الأواخر من رمضان",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(true),
             points: 1,
             order: 10,
@@ -101,7 +101,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "عدد ركعات صلاة الفجر أربع ركعات",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(false),
             points: 1,
             order: 11,
@@ -109,7 +109,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "أول آية نزلت في القرآن الكريم هي (اقرأ باسم ربك الذي خلق)",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(true),
             points: 1,
             order: 12,
@@ -117,7 +117,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "غزوة بدر وقعت في السنة الثالثة للهجرة",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(false),
             points: 1,
             order: 13,
@@ -125,7 +125,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "الزكاة ركن من أركان الإسلام",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(true),
             points: 1,
             order: 14,
@@ -277,7 +277,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "كان عمر النبي 40 سنة عند نزول الوحي",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(true),
             points: 1,
             order: 6,
@@ -285,7 +285,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "أول من آمن من النساء هي السيدة عائشة رضي الله عنها",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(false),
             points: 1,
             order: 7,
@@ -293,7 +293,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "الهجرة إلى المدينة كانت في السنة الثالثة عشرة من البعثة",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(true),
             points: 1,
             order: 8,
@@ -345,7 +345,7 @@ async function main() {
           {
             type: QuestionType.TRUE_FALSE,
             text: "توفي النبي صلى الله عليه وسلم في المدينة المنورة",
-            options: null,
+            options: Prisma.JsonNull,
             correctAnswer: JSON.stringify(true),
             points: 1,
             order: 13,

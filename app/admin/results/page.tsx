@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Button, Select } from "@/components/ui";
 import type { Submission, Quiz, Question } from "@/types";
 
-interface SubmissionDetails extends Submission {
+interface SubmissionDetails extends Omit<Submission, 'quiz'> {
   quiz: {
     title: string;
     questions: Question[];
