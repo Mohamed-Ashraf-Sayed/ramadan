@@ -99,7 +99,7 @@ export default function Sidebar() {
           <span>عرض الموقع</span>
         </Link>
         <button
-          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          onClick={() => signOut({ callbackUrl: "/login" })}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:bg-error/20 hover:text-error transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
