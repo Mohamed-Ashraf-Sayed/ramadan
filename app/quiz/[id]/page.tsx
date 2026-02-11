@@ -46,9 +46,7 @@ export default function QuizRegistrationPage() {
       newErrors.name = "الاسم يجب أن يكون 3 أحرف على الأقل";
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = "رقم الجوال مطلوب";
-    } else if (!/^[0-9+]{10,15}$/.test(formData.phone.replace(/\s/g, ""))) {
+    if (formData.phone.trim() && !/^[0-9+]{10,15}$/.test(formData.phone.replace(/\s/g, ""))) {
       newErrors.phone = "رقم الجوال غير صالح";
     }
 
