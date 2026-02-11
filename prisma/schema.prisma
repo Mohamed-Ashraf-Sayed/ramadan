@@ -28,6 +28,7 @@ model Quiz {
   updatedAt   DateTime     @updatedAt
   questions   Question[]
   submissions Submission[]
+  drawWinners DrawWinner[] @relation("DrawWinnerQuiz")
 }
 
 model Question {
@@ -51,6 +52,21 @@ enum QuestionType {
   TRUE_FALSE
   ORDERING
   IMAGE_TEXT
+}
+
+model DrawWinner {
+  id        Int      @id @default(autoincrement())
+  quizId    Int
+  quiz      Quiz     @relation("DrawWinnerQuiz", fields: [quizId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String?
+  score     Int
+  totalPoints Int
+  percentage  Float
+  createdAt DateTime @default(now())
+
+  @@index([quizId])
+  @@index([createdAt])
 }
 
 model Submission {

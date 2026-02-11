@@ -31,15 +31,16 @@ function formatWeekLabel(start: Date, end: Date): string {
   return `${fmt(start)} - ${fmt(end)}`;
 }
 
-interface DailyWinner {
+interface SavedDrawWinner {
+  id: number;
+  quizId: number;
   name: string;
-  phone?: string;
-  percentage: number;
+  phone: string | null;
   score: number;
   totalPoints: number;
-  quizTitle: string;
-  dayLabel: string;
-  dateKey: string;
+  percentage: number;
+  createdAt: string;
+  quiz: { id: number; title: string };
 }
 
 export default function DrawPage() {
@@ -199,6 +200,25 @@ function QuizDrawTab() {
         <DrawMachine
           candidates={topScorers}
           title={`المتصدرين بنتيجة ${topScorers.length > 0 ? Math.round(topScorers[0].percentage) : 0}%`}
+          showConfirmButton
+          onWinnerConfirmed={async (winner) => {
+            try {
+              await fetch("/api/draw-winners", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  quizId: parseInt(selectedQuiz),
+                  name: winner.name,
+                  phone: winner.phone,
+                  score: winner.score,
+                  totalPoints: winner.totalPoints,
+                  percentage: winner.percentage,
+                }),
+              });
+            } catch (err) {
+              console.error("Failed to save draw winner:", err);
+            }
+          }}
         />
       )}
     </div>
@@ -206,78 +226,42 @@ function QuizDrawTab() {
 }
 
 // =====================================================
-// Weekly Draw Tab
+// Weekly Draw Tab - uses saved draw winners from API
 // =====================================================
 function WeeklyDrawTab() {
   const [weekOffset, setWeekOffset] = useState(0);
-  const [submissions, setSubmissions] = useState<(Submission & { quiz: { id: number; title: string } })[]>([]);
+  const [winners, setWinners] = useState<SavedDrawWinner[]>([]);
   const [loading, setLoading] = useState(false);
 
   const { start, end } = useMemo(() => getWeekRange(weekOffset), [weekOffset]);
 
-  // Fetch all submissions for the week
+  // Fetch saved draw winners for the week
   useEffect(() => {
     setLoading(true);
     const fromDate = formatDate(start);
     const toDate = formatDate(end);
-    fetch(`/api/submissions?fromDate=${fromDate}&toDate=${toDate}`)
+    fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}`)
       .then((r) => (r.ok ? r.json() : []))
-      .then(setSubmissions)
-      .catch(() => setSubmissions([]))
+      .then(setWinners)
+      .catch(() => setWinners([]))
       .finally(() => setLoading(false));
   }, [start, end]);
 
-  // Calculate daily winners
-  const dailyWinners = useMemo<DailyWinner[]>(() => {
-    if (submissions.length === 0) return [];
-
-    // Group by date (YYYY-MM-DD)
-    const byDay: Record<string, (Submission & { quiz: { id: number; title: string } })[]> = {};
-    for (const sub of submissions) {
-      const d = new Date(sub.createdAt);
-      const key = formatDate(d);
-      if (!byDay[key]) byDay[key] = [];
-      byDay[key].push(sub);
-    }
-
-    const winners: DailyWinner[] = [];
-
-    for (const [dateKey, daySubs] of Object.entries(byDay)) {
-      const maxPct = Math.max(...daySubs.map((s) => s.percentage));
-      const topForDay = daySubs.filter((s) => s.percentage === maxPct);
-      const d = new Date(dateKey + "T12:00:00");
-      const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
-
-      for (const s of topForDay) {
-        winners.push({
-          name: s.name,
-          phone: s.phone,
-          percentage: s.percentage,
-          score: s.score,
-          totalPoints: s.totalPoints,
-          quizTitle: s.quiz.title,
-          dayLabel,
-          dateKey,
-        });
-      }
-    }
-
-    // Sort by date
-    winners.sort((a, b) => a.dateKey.localeCompare(b.dateKey));
-    return winners;
-  }, [submissions]);
-
   // Convert to DrawMachine candidates
   const drawCandidates = useMemo(() => {
-    return dailyWinners.map((w) => ({
-      name: w.name,
-      phone: w.phone,
-      percentage: w.percentage,
-      score: w.score,
-      totalPoints: w.totalPoints,
-      extra: `${w.dayLabel} - ${w.quizTitle}`,
-    }));
-  }, [dailyWinners]);
+    return winners.map((w) => {
+      const d = new Date(w.createdAt);
+      const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+      return {
+        name: w.name,
+        phone: w.phone || undefined,
+        percentage: w.percentage,
+        score: w.score,
+        totalPoints: w.totalPoints,
+        extra: `${dayLabel} - ${w.quiz.title}`,
+      };
+    });
+  }, [winners]);
 
   const isCurrentWeek = weekOffset === 0;
 
@@ -320,15 +304,7 @@ function WeeklyDrawTab() {
         {!loading && (
           <div className="mt-4 flex items-center justify-center gap-6 text-sm flex-wrap">
             <span className="text-white/60">
-              إجمالي المشاركات: <strong className="text-white">{submissions.length}</strong>
-            </span>
-            <span className="text-white/60">
-              أيام بها مشاركات: <strong className="text-ramadan-gold">
-                {new Set(submissions.map((s) => formatDate(new Date(s.createdAt)))).size}
-              </strong>
-            </span>
-            <span className="text-white/60">
-              فائزين يوميين: <strong className="text-ramadan-gold">{dailyWinners.length}</strong>
+              فائزين السحوبات: <strong className="text-ramadan-gold">{winners.length}</strong>
             </span>
           </div>
         )}
@@ -341,31 +317,32 @@ function WeeklyDrawTab() {
         </div>
       )}
 
-      {/* No submissions this week */}
-      {!loading && submissions.length === 0 && (
+      {/* No winners this week */}
+      {!loading && winners.length === 0 && (
         <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
           <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
             <svg className="w-10 h-10 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <p className="text-white/40 text-lg">لا توجد مشاركات في هذا الأسبوع</p>
+          <p className="text-white/40 text-lg">لا يوجد فائزين محفوظين في هذا الأسبوع</p>
+          <p className="text-white/30 text-sm mt-2">قم بعمل سحب في تاب &quot;سحب الاختبار&quot; وتأكيد الفائز أولاً</p>
         </div>
       )}
 
-      {/* Daily Winners Table */}
-      {!loading && dailyWinners.length > 0 && (
+      {/* Winners Table + Draw */}
+      {!loading && winners.length > 0 && (
         <>
           <div className="bg-ramadan-purple/30 border border-ramadan-gold/20 rounded-xl overflow-hidden">
             <div className="p-4 border-b border-ramadan-gold/10">
-              <h3 className="text-lg font-bold text-ramadan-gold">فائزين الأيام</h3>
-              <p className="text-white/40 text-sm mt-1">أعلى نتيجة في كل يوم تدخل السحب الأسبوعي</p>
+              <h3 className="text-lg font-bold text-ramadan-gold">فائزين السحوبات اليومية</h3>
+              <p className="text-white/40 text-sm mt-1">الفائزين المؤكدين من سحوبات الاختبارات</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-right text-white/60 text-sm font-medium p-3">اليوم</th>
+                    <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
                     <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
                     <th className="text-right text-white/60 text-sm font-medium p-3">الجوال</th>
                     <th className="text-right text-white/60 text-sm font-medium p-3">الاختبار</th>
@@ -373,19 +350,23 @@ function WeeklyDrawTab() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dailyWinners.map((w, i) => (
-                    <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                      <td className="p-3 text-white/80 text-sm whitespace-nowrap">{w.dayLabel}</td>
-                      <td className="p-3 text-white font-medium">{w.name}</td>
-                      <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
-                      <td className="p-3 text-white/60 text-sm">{w.quizTitle}</td>
-                      <td className="p-3">
-                        <span className="inline-block px-3 py-1 bg-success/20 text-success rounded-full text-sm font-bold">
-                          {Math.round(w.percentage)}%
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {winners.map((w) => {
+                    const d = new Date(w.createdAt);
+                    const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+                    return (
+                      <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
+                        <td className="p-3 text-white font-medium">{w.name}</td>
+                        <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
+                        <td className="p-3 text-white/60 text-sm">{w.quiz.title}</td>
+                        <td className="p-3">
+                          <span className="inline-block px-3 py-1 bg-success/20 text-success rounded-full text-sm font-bold">
+                            {Math.round(w.percentage)}%
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -394,7 +375,7 @@ function WeeklyDrawTab() {
           {/* Draw Machine */}
           <DrawMachine
             candidates={drawCandidates}
-            title={`فائزين الأسبوع - السحب بين ${drawCandidates.length} مرشح`}
+            title={`السحب الأسبوعي بين ${drawCandidates.length} فائز`}
           />
         </>
       )}

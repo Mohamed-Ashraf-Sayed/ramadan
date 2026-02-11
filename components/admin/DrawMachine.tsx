@@ -15,13 +15,16 @@ interface Candidate {
 interface DrawMachineProps {
   candidates: Candidate[];
   title?: string;
+  onWinnerConfirmed?: (winner: Candidate) => void;
+  showConfirmButton?: boolean;
 }
 
-export default function DrawMachine({ candidates, title }: DrawMachineProps) {
+export default function DrawMachine({ candidates, title, onWinnerConfirmed, showConfirmButton }: DrawMachineProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentName, setCurrentName] = useState<string>("");
   const [winner, setWinner] = useState<Candidate | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const stageRef = useRef<"idle" | "fast" | "slowing" | "done">("idle");
 
@@ -32,6 +35,7 @@ export default function DrawMachine({ candidates, title }: DrawMachineProps) {
     stageRef.current = "idle";
     setIsDrawing(false);
     setShowConfetti(false);
+    setConfirmed(false);
     if (animationRef.current) clearTimeout(animationRef.current);
   }, [candidates]);
 
@@ -202,27 +206,54 @@ export default function DrawMachine({ candidates, title }: DrawMachineProps) {
           </div>
 
           {/* Draw button */}
-          <Button
-            onClick={startDraw}
-            disabled={isDrawing || candidates.length < 2}
-            className={`px-10 py-4 text-lg font-bold transition-all duration-300 ${
-              isDrawing ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {isDrawing ? (
-              <span className="flex items-center gap-2">
-                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                جاري السحب...
-              </span>
-            ) : winner ? (
-              "إعادة السحب"
-            ) : (
-              "ابدأ السحب"
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <Button
+              onClick={() => {
+                setConfirmed(false);
+                startDraw();
+              }}
+              disabled={isDrawing || candidates.length < 2}
+              className={`px-10 py-4 text-lg font-bold transition-all duration-300 ${
+                isDrawing ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isDrawing ? (
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  جاري السحب...
+                </span>
+              ) : winner ? (
+                "إعادة السحب"
+              ) : (
+                "ابدأ السحب"
+              )}
+            </Button>
+
+            {showConfirmButton && winner && !confirmed && (
+              <Button
+                onClick={() => {
+                  setConfirmed(true);
+                  onWinnerConfirmed?.(winner);
+                }}
+                variant="secondary"
+                className="px-8 py-4 text-lg font-bold !bg-success/20 !text-success !border-success/30 hover:!bg-success/30"
+              >
+                تأكيد الفائز
+              </Button>
             )}
-          </Button>
+
+            {showConfirmButton && confirmed && (
+              <span className="px-6 py-3 bg-success/20 text-success rounded-xl font-bold flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                تم تأكيد الفائز
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
