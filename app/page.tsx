@@ -133,7 +133,7 @@ export default function Home() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-ramadan-gold/10 border border-ramadan-gold/30 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
                 <span className="w-2 h-2 bg-ramadan-gold rounded-full animate-pulse"></span>
-                <span className="text-ramadan-gold text-sm font-medium">أكاديمية شباب أسرة المهيدب</span>
+                <span className="text-ramadan-gold text-sm font-medium">أكاديمية أسرة المهيدب</span>
               </div>
 
               {/* Main Title */}
@@ -177,23 +177,6 @@ export default function Home() {
                 </Link>
               </div>
 
-              {/* Stats */}
-              <div className="flex justify-center gap-8 md:gap-16">
-                <div className="text-center">
-                  <p className="text-4xl font-bold text-ramadan-gold">+1000</p>
-                  <p className="text-sm text-white/60">مشارك</p>
-                </div>
-                <div className="w-px bg-ramadan-gold/30"></div>
-                <div className="text-center">
-                  <p className="text-4xl font-bold text-ramadan-gold">+50</p>
-                  <p className="text-sm text-white/60">مسابقة</p>
-                </div>
-                <div className="w-px bg-ramadan-gold/30"></div>
-                <div className="text-center">
-                  <p className="text-4xl font-bold text-ramadan-gold">+500</p>
-                  <p className="text-sm text-white/60">سؤال</p>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -230,7 +213,7 @@ export default function Home() {
                   <span className="text-ramadan-gold text-sm font-medium">من نحن</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                  أكاديمية  أسرة المهيدب
+                  أكاديمية أسرة المهيدب
                 </h2>
                 <p className="text-lg text-white/70 mb-6 leading-relaxed">
                   نقدم لكم منصة أسداف للمسابقات الثقافية، حيث نجمع بين المتعة والفائدة في تجربة تعليمية فريدة لجميع أفراد الأسرة المهيدب وزوجات الأبناء الاسره فقط.
@@ -450,11 +433,11 @@ export default function Home() {
                   جاهز للتحدي؟
                 </h2>
                 <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto">
-                  انضم الآن إلى آلاف المشاركين واختبر معلوماتك في مسابقات أسداف الثقافية المتنوعة
+                  انضم الآن إلى  المشاركين واختبر معلوماتك في مسابقات أسداف الثقافية المتنوعة
                 </p>
                 <Link href="/quiz">
                   <Button size="lg" className="bg-ramadan-gold text-ramadan-dark hover:bg-ramadan-gold-light text-lg px-12 py-6 shadow-xl shadow-ramadan-gold/30 font-bold">
-                    ابدأ المسابقة مجاناً
+                    ابدأ المسابقة الان
                   </Button>
                 </Link>
               </div>
@@ -517,7 +500,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-ramadan-gold">أسداف</h3>
-                    <p className="text-sm text-white/60">أكاديمية شباب أسرة المهيدب</p>
+                    <p className="text-sm text-white/60">أكاديمية أسرة المهيدب</p>
                   </div>
                 </div>
                 <p className="text-white/60 leading-relaxed max-w-md">
@@ -538,7 +521,7 @@ export default function Home() {
               <div>
                 <h4 className="font-bold text-ramadan-gold mb-4">تواصل معنا</h4>
                 <ul className="space-y-2 text-white/60">
-                  <li>أكاديمية  أسرة المهيدب</li>
+                  <li>أكاديمية أسرة المهيدب</li>
                   <li>المملكة العربية السعودية</li>
                 </ul>
               </div>
@@ -547,7 +530,7 @@ export default function Home() {
             {/* Bottom */}
             <div className="pt-8 border-t border-ramadan-gold/10 flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-white/40 text-sm">
-                جميع الحقوق محفوظة © {new Date().getFullYear()} أكاديمية شباب أسرة المهيدب
+                جميع الحقوق محفوظة © {new Date().getFullYear()} أكاديمية أسرة المهيدب
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-white/40 text-sm">صنع بـ</span>
