@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { quizId, name, email, phone, answers } = body;
+    const { quizId, name, phone, answers } = body;
 
-    if (!quizId || !name || !email || !phone || !answers) {
+    if (!quizId || !name || !phone || !answers) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -172,7 +172,6 @@ export async function POST(request: NextRequest) {
       data: {
         quizId,
         name,
-        email,
         phone,
         answers,
         score,

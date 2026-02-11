@@ -32,7 +32,7 @@ export interface Submission {
   id: number;
   quizId: number;
   name: string;
-  email: string;
+  email?: string;
   phone: string;
   answers: Record<number, string | string[] | boolean>;
   score: number;
@@ -44,7 +44,6 @@ export interface Submission {
 
 export interface ParticipantInfo {
   name: string;
-  email: string;
   phone: string;
 }
 

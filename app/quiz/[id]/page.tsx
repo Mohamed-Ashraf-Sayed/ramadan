@@ -16,7 +16,6 @@ export default function QuizRegistrationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -47,16 +46,10 @@ export default function QuizRegistrationPage() {
       newErrors.name = "الاسم يجب أن يكون 3 أحرف على الأقل";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "البريد الإلكتروني مطلوب";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "البريد الإلكتروني غير صالح";
-    }
-
     if (!formData.phone.trim()) {
-      newErrors.phone = "رقم الموبايل مطلوب";
+      newErrors.phone = "رقم الجوال مطلوب";
     } else if (!/^[0-9+]{10,15}$/.test(formData.phone.replace(/\s/g, ""))) {
-      newErrors.phone = "رقم الموبايل غير صالح";
+      newErrors.phone = "رقم الجوال غير صالح";
     }
 
     setErrors(newErrors);
@@ -146,20 +139,9 @@ export default function QuizRegistrationPage() {
               />
 
               <Input
-                label="البريد الإلكتروني"
-                type="email"
-                placeholder="example@email.com"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                error={errors.email}
-              />
-
-              <Input
-                label="رقم الموبايل"
+                label="رقم الجوال"
                 type="tel"
-                placeholder="01xxxxxxxxx"
+                placeholder="05xxxxxxxx"
                 value={formData.phone}
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })

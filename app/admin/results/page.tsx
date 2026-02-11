@@ -105,10 +105,9 @@ export default function AdminResultsPage() {
   function exportToCSV() {
     if (submissions.length === 0) return;
 
-    const headers = ["الاسم", "البريد الإلكتروني", "رقم الموبايل", "الاختبار", "النتيجة", "النسبة", "التاريخ"];
+    const headers = ["الاسم", "رقم الجوال", "الاختبار", "النتيجة", "النسبة", "التاريخ"];
     const rows = submissions.map(s => [
       s.name,
-      s.email,
       s.phone,
       s.quiz.title,
       `${s.score}/${s.totalPoints}`,
@@ -194,7 +193,6 @@ export default function AdminResultsPage() {
                     <td className="px-6 py-4">
                       <div>
                         <p className="font-medium text-white">{submission.name}</p>
-                        <p className="text-sm text-white/50">{submission.email}</p>
                         <p className="text-sm text-white/50">{submission.phone}</p>
                       </div>
                     </td>

@@ -166,10 +166,7 @@ export default function ResultPage() {
                 <span className="font-medium text-white/90">الاسم:</span> {submission.name}
               </p>
               <p className="text-sm text-white/70">
-                <span className="font-medium text-white/90">البريد:</span> {submission.email}
-              </p>
-              <p className="text-sm text-white/70">
-                <span className="font-medium text-white/90">الموبايل:</span> {submission.phone}
+                <span className="font-medium text-white/90">الجوال:</span> {submission.phone}
               </p>
             </div>
 

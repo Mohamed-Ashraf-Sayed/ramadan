@@ -59,7 +59,7 @@ model Submission {
   quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   name        String
-  email       String
+  email       String?
   phone       String
 
   answers     Json

@@ -6,7 +6,6 @@ import type { Quiz, Submission } from "@/types";
 
 interface Winner {
   name: string;
-  email: string;
   phone: string;
   score: number;
   totalPoints: number;
@@ -67,7 +66,6 @@ export default function DrawPage() {
             .filter((s: Submission) => s.percentage === maxScore)
             .map((s: Submission) => ({
               name: s.name,
-              email: s.email,
               phone: s.phone,
               score: s.score,
               totalPoints: s.totalPoints,
@@ -218,7 +216,6 @@ export default function DrawPage() {
           </div>
           <h2 className="text-2xl font-bold text-ramadan-gold mb-2">الفائز الوحيد!</h2>
           <p className="text-3xl font-bold text-white mb-2">{topScorers[0].name}</p>
-          <p className="text-white/60 mb-1">{topScorers[0].email}</p>
           <p className="text-white/60 mb-4">{topScorers[0].phone}</p>
           <span className="inline-block px-6 py-2 bg-success/20 text-success rounded-full text-lg font-bold">
             {Math.round(topScorers[0].percentage)}% - {topScorers[0].score}/{topScorers[0].totalPoints}
@@ -240,7 +237,7 @@ export default function DrawPage() {
                 <div
                   key={i}
                   className={`p-3 rounded-lg border transition-all duration-300 ${
-                    winner && winner.name === scorer.name && winner.email === scorer.email
+                    winner && winner.name === scorer.name && winner.phone === scorer.phone
                       ? "bg-ramadan-gold/20 border-ramadan-gold/50 scale-105"
                       : "bg-white/5 border-white/10"
                   }`}
@@ -297,7 +294,6 @@ export default function DrawPage() {
                     <p className="text-5xl md:text-6xl font-bold text-ramadan-gold mb-3 animate-bounce-slow">
                       {winner.name}
                     </p>
-                    <p className="text-white/60 text-lg">{winner.email}</p>
                     <p className="text-white/60">{winner.phone}</p>
                     <div className="mt-4">
                       <span className="inline-block px-6 py-2 bg-success/20 text-success rounded-full font-bold">
