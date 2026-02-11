@@ -20,7 +20,7 @@ export default function Header() {
             </div>
             <div>
               <h1 className="text-lg font-bold text-ramadan-gold leading-tight">أسداف</h1>
-              <p className="text-xs text-white/60 leading-tight">أكاديمية المهيدب</p>
+              <p className="text-xs text-white/60 leading-tight">أكاديمية أسرة المهيدب</p>
             </div>
           </Link>
 
