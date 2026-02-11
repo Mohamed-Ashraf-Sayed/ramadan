@@ -7,7 +7,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const quizId = searchParams.get("quizId");
 
-    const where = quizId ? { quizId: parseInt(quizId) } : {};
+    const fromDate = searchParams.get("fromDate");
+    const toDate = searchParams.get("toDate");
+
+    const where: Record<string, unknown> = {};
+    if (quizId) where.quizId = parseInt(quizId);
+    if (fromDate || toDate) {
+      where.createdAt = {
+        ...(fromDate ? { gte: new Date(fromDate) } : {}),
+        ...(toDate ? { lte: new Date(toDate + "T23:59:59.999Z") } : {}),
+      };
+    }
 
     const submissions = await prisma.submission.findMany({
       where,
