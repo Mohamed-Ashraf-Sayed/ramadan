@@ -22,8 +22,9 @@ model Quiz {
   id          Int          @id @default(autoincrement())
   title       String
   description String?      @db.Text
-  timeLimit   Int?         // Time limit in minutes (null = no limit)
-  isActive    Boolean      @default(true)
+  timeLimit   Int?         // Duration in hours (null = no limit)
+  startedAt   DateTime?    // When the quiz was started by admin
+  isActive    Boolean      @default(false)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   questions   Question[]

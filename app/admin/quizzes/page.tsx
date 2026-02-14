@@ -17,7 +17,7 @@ export default function AdminQuizzesPage() {
 
   async function fetchQuizzes() {
     try {
-      const response = await fetch("/api/quizzes");
+      const response = await fetch("/api/quizzes?all=true");
       if (response.ok) {
         const data = await response.json();
         setQuizzes(data);
@@ -31,14 +31,16 @@ export default function AdminQuizzesPage() {
 
   async function toggleQuizStatus(quiz: Quiz) {
     try {
+      const action = quiz.isActive ? "stop" : "start";
       const response = await fetch(`/api/quizzes/${quiz.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !quiz.isActive }),
+        body: JSON.stringify({ action }),
       });
 
       if (response.ok) {
         fetchQuizzes();
+        toast(quiz.isActive ? "تم إيقاف المسابقة" : "تم بدء المسابقة", "success");
       }
     } catch (error) {
       console.error("Error updating quiz:", error);

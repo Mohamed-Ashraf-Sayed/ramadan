@@ -33,7 +33,7 @@ export default function AdminResultsPage() {
 
   async function fetchQuizzes() {
     try {
-      const response = await fetch("/api/quizzes");
+      const response = await fetch("/api/quizzes?all=true");
       if (response.ok) {
         const data = await response.json();
         setQuizzes(data);

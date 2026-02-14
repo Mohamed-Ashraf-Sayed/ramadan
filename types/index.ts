@@ -4,7 +4,8 @@ export interface Quiz {
   id: number;
   title: string;
   description: string | null;
-  timeLimit: number | null; // Time limit in minutes (null = no limit)
+  timeLimit: number | null; // Duration in hours (null = no limit)
+  startedAt: Date | null;   // When quiz was started by admin
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

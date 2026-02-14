@@ -105,15 +105,16 @@ export default function NewQuizPage() {
             <div>
               <Input
                 type="number"
-                label="مدة الاختبار بالدقائق (اختياري)"
-                placeholder="مثال: 15"
+                label="مدة المسابقة بالساعات (اختياري)"
+                placeholder="مثال: 24"
                 value={formData.timeLimit}
                 onChange={(e) =>
                   setFormData({ ...formData, timeLimit: e.target.value })
                 }
                 min={1}
-                helperText="اتركه فارغاً إذا كنت لا تريد تحديد وقت"
+                helperText="المدة بالساعات من وقت بدء المسابقة - اتركه فارغاً لعدم تحديد وقت"
               />
+              <p className="text-xs text-white/40 mt-2">المسابقة تُنشأ متوقفة - يمكنك بدؤها من صفحة التعديل</p>
             </div>
           </CardContent>
 

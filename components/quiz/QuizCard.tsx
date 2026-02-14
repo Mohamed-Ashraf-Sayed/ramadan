@@ -54,7 +54,7 @@ export default function QuizCard({ quiz }: QuizCardProps) {
               </svg>
             </div>
             <span className="font-medium">
-              {quiz.timeLimit ? `${quiz.timeLimit} دقيقة` : "بدون وقت"}
+              {quiz.timeLimit ? `${quiz.timeLimit} ساعة` : "بدون وقت"}
             </span>
           </div>
         </div>

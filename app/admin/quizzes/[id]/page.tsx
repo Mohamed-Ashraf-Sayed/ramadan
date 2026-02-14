@@ -258,12 +258,67 @@ export default function EditQuizPage() {
         <CardContent className="space-y-4">
           <Input label="عنوان الاختبار" value={quiz.title} onChange={(e) => setQuiz({ ...quiz, title: e.target.value })} onBlur={() => updateQuiz({ title: quiz.title })} />
           <Textarea label="وصف الاختبار" value={quiz.description || ""} onChange={(e) => setQuiz({ ...quiz, description: e.target.value })} onBlur={() => updateQuiz({ description: quiz.description })} rows={2} />
-          <Input type="number" label="مدة الاختبار بالدقائق" placeholder="اتركه فارغاً لعدم تحديد وقت" value={quiz.timeLimit?.toString() || ""} onChange={(e) => setQuiz({ ...quiz, timeLimit: e.target.value ? parseInt(e.target.value) : null })} onBlur={() => updateQuiz({ timeLimit: quiz.timeLimit })} min={1} helperText="اتركه فارغاً إذا كنت لا تريد تحديد وقت" />
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={quiz.isActive} onChange={(e) => { setQuiz({ ...quiz, isActive: e.target.checked }); updateQuiz({ isActive: e.target.checked }); }} className="w-5 h-5 rounded border-ramadan-gold/30 text-ramadan-gold focus:ring-ramadan-gold" />
-              <span className="text-sm text-white">الاختبار نشط ومتاح للمشاركين</span>
-            </label>
+          <Input type="number" label="مدة المسابقة بالساعات" placeholder="اتركه فارغاً لعدم تحديد وقت" value={quiz.timeLimit?.toString() || ""} onChange={(e) => setQuiz({ ...quiz, timeLimit: e.target.value ? parseInt(e.target.value) : null })} onBlur={() => updateQuiz({ timeLimit: quiz.timeLimit })} min={1} helperText="المدة بالساعات من وقت بدء المسابقة" />
+
+          {/* Quiz Start/Stop Controls */}
+          <div className="border-t border-ramadan-gold/20 pt-4 mt-2 space-y-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-white/60">الحالة:</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  quiz.isActive
+                    ? "bg-success/10 text-success border border-success/20"
+                    : "bg-white/5 text-white/40 border border-white/10"
+                }`}>
+                  {quiz.isActive ? "نشطة" : "متوقفة"}
+                </span>
+              </div>
+              {quiz.startedAt && (
+                <span className="text-xs text-white/40">
+                  بدأت: {new Date(quiz.startedAt).toLocaleString("ar-EG")}
+                </span>
+              )}
+            </div>
+
+            {quiz.isActive && quiz.startedAt && quiz.timeLimit && (
+              <QuizTimeRemaining startedAt={quiz.startedAt} timeLimit={quiz.timeLimit} />
+            )}
+
+            <div className="flex gap-3">
+              {!quiz.isActive ? (
+                <Button
+                  onClick={async () => {
+                    const ok = await confirm({ title: "بدء المسابقة", message: "هل أنت متأكد من بدء المسابقة؟ سيتم احتساب الوقت من الآن.", confirmText: "بدء" });
+                    if (!ok) return;
+                    await updateQuiz({ action: "start" } as unknown as Partial<Quiz>);
+                    toast("تم بدء المسابقة", "success");
+                  }}
+                  className="!bg-success/20 !text-success !border-success/30 hover:!bg-success/30"
+                >
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  بدء المسابقة
+                </Button>
+              ) : (
+                <Button
+                  onClick={async () => {
+                    const ok = await confirm({ title: "إيقاف المسابقة", message: "هل أنت متأكد من إيقاف المسابقة؟ لن يتمكن المشاركون من الدخول.", confirmText: "إيقاف", variant: "danger" });
+                    if (!ok) return;
+                    await updateQuiz({ action: "stop" } as unknown as Partial<Quiz>);
+                    toast("تم إيقاف المسابقة", "success");
+                  }}
+                  className="!bg-error/20 !text-error !border-error/30 hover:!bg-error/30"
+                >
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                  </svg>
+                  إيقاف المسابقة
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -498,6 +553,40 @@ export default function EditQuizPage() {
           </Card>
         )}
       </div>
+    </div>
+  );
+}
+
+// Component that auto-updates time remaining every minute
+function QuizTimeRemaining({ startedAt, timeLimit }: { startedAt: Date; timeLimit: number }) {
+  const [remaining, setRemaining] = useState("");
+
+  useEffect(() => {
+    function calc() {
+      const endsAt = new Date(startedAt);
+      endsAt.setHours(endsAt.getHours() + timeLimit);
+      const diff = endsAt.getTime() - Date.now();
+      if (diff <= 0) {
+        setRemaining("انتهت المدة");
+        return;
+      }
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setRemaining(hours > 0 ? `${hours} ساعة و ${minutes} دقيقة` : `${minutes} دقيقة`);
+    }
+    calc();
+    const interval = setInterval(calc, 60000);
+    return () => clearInterval(interval);
+  }, [startedAt, timeLimit]);
+
+  return (
+    <div className="p-3 bg-ramadan-gold/10 border border-ramadan-gold/20 rounded-xl flex items-center gap-2">
+      <svg className="w-5 h-5 text-ramadan-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span className="text-sm text-white/80">
+        الوقت المتبقي: <span className="font-bold text-ramadan-gold">{remaining}</span>
+      </span>
     </div>
   );
 }

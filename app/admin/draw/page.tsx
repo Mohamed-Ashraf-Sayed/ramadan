@@ -118,7 +118,7 @@ function QuizDrawTab() {
   }, [submissions]);
 
   useEffect(() => {
-    fetch("/api/quizzes")
+    fetch("/api/quizzes?all=true")
       .then((r) => r.ok ? r.json() : [])
       .then(setQuizzes)
       .catch(() => {});

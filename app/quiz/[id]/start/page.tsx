@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Button, Card, CardContent, useToast } from "@/components/ui";
@@ -20,8 +20,6 @@ export default function QuizStartPage() {
   const [participant, setParticipant] = useState<ParticipantInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number | null>(null); // Time left in seconds
-  const hasAutoSubmitted = useRef(false);
 
   useEffect(() => {
     // Check if participant info exists
@@ -39,10 +37,6 @@ export default function QuizStartPage() {
           const data = await response.json();
           setQuiz(data);
           setQuestions(data.questions || []);
-          // Set initial time if quiz has time limit
-          if (data.timeLimit) {
-            setTimeLeft(data.timeLimit * 60); // Convert minutes to seconds
-          }
         }
       } catch (error) {
         console.error("Error fetching quiz:", error);
@@ -52,38 +46,6 @@ export default function QuizStartPage() {
     }
     fetchQuiz();
   }, [quizId, router]);
-
-  // Timer countdown
-  useEffect(() => {
-    if (timeLeft === null || timeLeft <= 0) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft]);
-
-  // Format time display
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  // Get timer color based on remaining time
-  const getTimerColor = () => {
-    if (timeLeft === null) return "text-muted-foreground";
-    if (timeLeft <= 60) return "text-error"; // Last minute - red
-    if (timeLeft <= 180) return "text-yellow-500"; // Last 3 minutes - yellow
-    return "text-primary";
-  };
 
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
@@ -106,7 +68,7 @@ export default function QuizStartPage() {
     }
   };
 
-  const handleSubmit = useCallback(async (isAutoSubmit = false) => {
+  const handleSubmit = useCallback(async () => {
     if (!participant || submitting) return;
 
     setSubmitting(true);
@@ -124,32 +86,18 @@ export default function QuizStartPage() {
 
       if (response.ok) {
         const result = await response.json();
-        // Clear participant data
         sessionStorage.removeItem(`quiz_${quizId}_participant`);
-        // Navigate to result page
         router.push(`/result/${result.id}`);
       } else {
-        if (!isAutoSubmit) {
-          toast("حدث خطأ أثناء إرسال الإجابات", "error");
-        }
+        toast("حدث خطأ أثناء إرسال الإجابات", "error");
       }
     } catch (error) {
       console.error("Error submitting quiz:", error);
-      if (!isAutoSubmit) {
-        toast("حدث خطأ أثناء إرسال الإجابات", "error");
-      }
+      toast("حدث خطأ أثناء إرسال الإجابات", "error");
     } finally {
       setSubmitting(false);
     }
   }, [participant, submitting, quizId, answers, router]);
-
-  // Auto-submit when time runs out
-  useEffect(() => {
-    if (timeLeft === 0 && !hasAutoSubmitted.current && participant) {
-      hasAutoSubmitted.current = true;
-      handleSubmit(true);
-    }
-  }, [timeLeft, participant, handleSubmit]);
 
   if (loading) {
     return (
@@ -182,19 +130,10 @@ export default function QuizStartPage() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-start justify-between gap-4 mb-2">
+          <div className="mb-2">
             <h1 className="text-2xl font-bold text-primary-dark">
               {quiz.title}
             </h1>
-            {/* Timer */}
-            {timeLeft !== null && (
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-xl bg-white shadow-md ${getTimerColor()}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="font-bold text-lg font-mono">{formatTime(timeLeft)}</span>
-              </div>
-            )}
           </div>
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>السؤال {currentQuestionIndex + 1} من {questions.length}</span>
@@ -207,12 +146,6 @@ export default function QuizStartPage() {
               style={{ width: `${progress}%` }}
             />
           </div>
-          {/* Time warning */}
-          {timeLeft !== null && timeLeft <= 60 && timeLeft > 0 && (
-            <p className="text-center text-sm text-error mt-2 animate-pulse">
-              تبقى أقل من دقيقة! سيتم إرسال الإجابات تلقائياً
-            </p>
-          )}
         </div>
 
         {/* Question Card */}
@@ -280,7 +213,7 @@ export default function QuizStartPage() {
 
           {isLastQuestion ? (
             <Button
-              onClick={() => handleSubmit(false)}
+              onClick={() => handleSubmit()}
               isLoading={submitting}
               disabled={answeredCount < questions.length}
             >

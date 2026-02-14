@@ -65,7 +65,24 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, description, timeLimit, isActive } = body;
+    const { title, description, timeLimit, isActive, action } = body;
+
+    // Handle start/stop actions
+    if (action === "start") {
+      const quiz = await prisma.quiz.update({
+        where: { id: parseInt(id) },
+        data: { isActive: true, startedAt: new Date() },
+      });
+      return NextResponse.json(quiz);
+    }
+
+    if (action === "stop") {
+      const quiz = await prisma.quiz.update({
+        where: { id: parseInt(id) },
+        data: { isActive: false },
+      });
+      return NextResponse.json(quiz);
+    }
 
     const quiz = await prisma.quiz.update({
       where: { id: parseInt(id) },
