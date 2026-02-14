@@ -165,9 +165,6 @@ export default function ResultPage() {
               <p className="text-sm text-white/70">
                 <span className="font-medium text-white/90">الاسم:</span> {submission.name}
               </p>
-              <p className="text-sm text-white/70">
-                <span className="font-medium text-white/90">الجوال:</span> {submission.phone}
-              </p>
             </div>
 
             {/* Action */}

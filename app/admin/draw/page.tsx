@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Button, Select, Input } from "@/components/ui";
+import { Button, Select, Input, useToast } from "@/components/ui";
 import DrawMachine from "@/components/admin/DrawMachine";
 import type { Quiz, Submission } from "@/types";
 
@@ -81,6 +81,7 @@ export default function DrawPage() {
 // Quiz Draw Tab (existing functionality)
 // =====================================================
 function QuizDrawTab() {
+  const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<string>("");
   const [submissions, setSubmissions] = useState<(Submission & { quiz: Quiz })[]>([]);
@@ -186,20 +187,27 @@ function QuizDrawTab() {
           showConfirmButton
           onWinnerConfirmed={async (winner) => {
             try {
-              await fetch("/api/draw-winners", {
+              const res = await fetch("/api/draw-winners", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   quizId: parseInt(selectedQuiz),
                   name: winner.name,
-                  phone: winner.phone,
+                  phone: winner.phone || null,
                   score: winner.score,
                   totalPoints: winner.totalPoints,
                   percentage: winner.percentage,
                 }),
               });
+              if (res.ok) {
+                toast("تم حفظ الفائز بنجاح", "success");
+              } else {
+                const data = await res.json().catch(() => ({}));
+                toast(data.error || "حدث خطأ أثناء حفظ الفائز", "error");
+              }
             } catch (err) {
               console.error("Failed to save draw winner:", err);
+              toast("حدث خطأ أثناء حفظ الفائز", "error");
             }
           }}
         />

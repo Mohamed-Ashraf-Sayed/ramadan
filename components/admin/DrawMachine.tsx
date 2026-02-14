@@ -119,6 +119,31 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
           </span>
         )}
         <p className="text-white/40 text-sm mt-4">لا يوجد متصدرين آخرين</p>
+
+        {showConfirmButton && !confirmed && (
+          <div className="mt-6">
+            <Button
+              onClick={() => {
+                setConfirmed(true);
+                onWinnerConfirmed?.(solo);
+              }}
+              variant="secondary"
+              className="px-8 py-4 text-lg font-bold !bg-success/20 !text-success !border-success/30 hover:!bg-success/30"
+            >
+              تأكيد الفائز
+            </Button>
+          </div>
+        )}
+        {showConfirmButton && confirmed && (
+          <div className="mt-6">
+            <span className="px-6 py-3 bg-success/20 text-success rounded-xl font-bold inline-flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              تم تأكيد الفائز
+            </span>
+          </div>
+        )}
       </div>
     );
   }
