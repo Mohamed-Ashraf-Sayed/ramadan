@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Button, Select } from "@/components/ui";
+import { Button, Select, Input } from "@/components/ui";
 import DrawMachine from "@/components/admin/DrawMachine";
 import type { Quiz, Submission } from "@/types";
 
@@ -10,25 +10,8 @@ type Tab = "quiz" | "weekly";
 // Arabic day names
 const DAY_NAMES = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
 
-function formatDate(date: Date): string {
+function formatDateStr(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
-
-function getWeekRange(offset: number): { start: Date; end: Date } {
-  const now = new Date();
-  const dayOfWeek = now.getDay(); // 0=Sun
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - dayOfWeek + offset * 7);
-  startOfWeek.setHours(0, 0, 0, 0);
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-  endOfWeek.setHours(23, 59, 59, 999);
-  return { start: startOfWeek, end: endOfWeek };
-}
-
-function formatWeekLabel(start: Date, end: Date): string {
-  const fmt = (d: Date) => `${d.getDate()}/${d.getMonth() + 1}`;
-  return `${fmt(start)} - ${fmt(end)}`;
 }
 
 interface SavedDrawWinner {
@@ -229,23 +212,22 @@ function QuizDrawTab() {
 // Weekly Draw Tab - uses saved draw winners from API
 // =====================================================
 function WeeklyDrawTab() {
-  const [weekOffset, setWeekOffset] = useState(0);
+  const [fromDate, setFromDate] = useState(() => formatDateStr(new Date()));
+  const [toDate, setToDate] = useState(() => formatDateStr(new Date()));
   const [winners, setWinners] = useState<SavedDrawWinner[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetched, setFetched] = useState(false);
 
-  const { start, end } = useMemo(() => getWeekRange(weekOffset), [weekOffset]);
-
-  // Fetch saved draw winners for the week
-  useEffect(() => {
+  function fetchWinners() {
+    if (!fromDate || !toDate) return;
     setLoading(true);
-    const fromDate = formatDate(start);
-    const toDate = formatDate(end);
+    setFetched(true);
     fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}`)
       .then((r) => (r.ok ? r.json() : []))
       .then(setWinners)
       .catch(() => setWinners([]))
       .finally(() => setLoading(false));
-  }, [start, end]);
+  }
 
   // Convert to DrawMachine candidates
   const drawCandidates = useMemo(() => {
@@ -263,46 +245,40 @@ function WeeklyDrawTab() {
     });
   }, [winners]);
 
-  const isCurrentWeek = weekOffset === 0;
-
   return (
     <div className="space-y-6">
-      {/* Week Selector */}
+      {/* Date Range Selector */}
       <div className="bg-ramadan-purple/50 border border-ramadan-gold/20 rounded-xl p-6">
-        <div className="flex items-center justify-between">
-          <Button
-            variant="secondary"
-            onClick={() => setWeekOffset((o) => o - 1)}
-            className="!px-4"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Button>
-
-          <div className="text-center">
-            <p className="text-white/60 text-sm mb-1">
-              {isCurrentWeek ? "الأسبوع الحالي" : `قبل ${Math.abs(weekOffset)} ${Math.abs(weekOffset) === 1 ? "أسبوع" : "أسابيع"}`}
-            </p>
-            <p className="text-xl font-bold text-white">
-              {formatWeekLabel(start, end)}
-            </p>
+        <h3 className="text-lg font-bold text-ramadan-gold mb-4">تحديد فترة السحب</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-white/60 mb-2">من تاريخ</label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-ramadan-purple/50 border border-ramadan-gold/20 text-white focus:outline-none focus:ring-2 focus:ring-ramadan-gold/50"
+            />
           </div>
-
-          <Button
-            variant="secondary"
-            onClick={() => setWeekOffset((o) => o + 1)}
-            disabled={isCurrentWeek}
-            className="!px-4"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </Button>
+          <div>
+            <label className="block text-sm font-medium text-white/60 mb-2">إلى تاريخ</label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-ramadan-purple/50 border border-ramadan-gold/20 text-white focus:outline-none focus:ring-2 focus:ring-ramadan-gold/50"
+            />
+          </div>
         </div>
+        <Button onClick={fetchWinners} disabled={!fromDate || !toDate}>
+          <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          عرض الفائزين
+        </Button>
 
-        {!loading && (
-          <div className="mt-4 flex items-center justify-center gap-6 text-sm flex-wrap">
+        {fetched && !loading && (
+          <div className="mt-4 flex items-center gap-6 text-sm flex-wrap">
             <span className="text-white/60">
               فائزين السحوبات: <strong className="text-ramadan-gold">{winners.length}</strong>
             </span>
@@ -317,26 +293,38 @@ function WeeklyDrawTab() {
         </div>
       )}
 
-      {/* No winners this week */}
-      {!loading && winners.length === 0 && (
+      {/* Not fetched yet */}
+      {!fetched && !loading && (
         <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
           <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
             <svg className="w-10 h-10 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <p className="text-white/40 text-lg">لا يوجد فائزين محفوظين في هذا الأسبوع</p>
+          <p className="text-white/40 text-lg">حدد فترة السحب واضغط &quot;عرض الفائزين&quot;</p>
+        </div>
+      )}
+
+      {/* No winners in range */}
+      {fetched && !loading && winners.length === 0 && (
+        <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
+          <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
+            <svg className="w-10 h-10 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-white/40 text-lg">لا يوجد فائزين محفوظين في هذه الفترة</p>
           <p className="text-white/30 text-sm mt-2">قم بعمل سحب في تاب &quot;سحب الاختبار&quot; وتأكيد الفائز أولاً</p>
         </div>
       )}
 
       {/* Winners Table + Draw */}
-      {!loading && winners.length > 0 && (
+      {fetched && !loading && winners.length > 0 && (
         <>
           <div className="bg-ramadan-purple/30 border border-ramadan-gold/20 rounded-xl overflow-hidden">
             <div className="p-4 border-b border-ramadan-gold/10">
-              <h3 className="text-lg font-bold text-ramadan-gold">فائزين السحوبات اليومية</h3>
-              <p className="text-white/40 text-sm mt-1">الفائزين المؤكدين من سحوبات الاختبارات</p>
+              <h3 className="text-lg font-bold text-ramadan-gold">فائزين السحوبات</h3>
+              <p className="text-white/40 text-sm mt-1">الفائزين المؤكدين من سحوبات الاختبارات في الفترة المحددة</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
