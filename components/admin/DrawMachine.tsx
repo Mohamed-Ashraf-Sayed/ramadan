@@ -111,7 +111,6 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
         </div>
         <h2 className="text-2xl font-bold text-ramadan-gold mb-2">الفائز الوحيد!</h2>
         <p className="text-3xl font-bold text-white mb-2">{solo.name}</p>
-        {solo.phone && <p className="text-white/60 mb-2">{solo.phone}</p>}
         {solo.extra && <p className="text-white/40 text-sm mb-4">{solo.extra}</p>}
         {solo.percentage !== undefined && (
           <span className="inline-block px-6 py-2 bg-success/20 text-success rounded-full text-lg font-bold">
@@ -166,7 +165,6 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
               }`}
             >
               <p className="font-medium text-white">{c.name}</p>
-              {c.phone && <p className="text-xs text-white/40">{c.phone}</p>}
               {c.extra && <p className="text-xs text-ramadan-gold/60">{c.extra}</p>}
             </div>
           ))}
@@ -217,7 +215,6 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
                 <p className="text-5xl md:text-6xl font-bold text-ramadan-gold mb-3 animate-bounce-slow">
                   {winner.name}
                 </p>
-                {winner.phone && <p className="text-white/60">{winner.phone}</p>}
                 {winner.extra && <p className="text-white/40 text-sm mt-1">{winner.extra}</p>}
                 {winner.percentage !== undefined && (
                   <div className="mt-4">
