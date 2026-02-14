@@ -21,6 +21,10 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Push schema changes to database during build
+ARG DATABASE_URL
+RUN npx prisma db push --skip-generate
+
 RUN npm run build
 
 # --- Runner ---
