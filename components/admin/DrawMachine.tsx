@@ -113,7 +113,7 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
         <p className="text-3xl font-bold text-white mb-2">{solo.name}</p>
         {solo.extra && <p className="text-white/40 text-sm mb-4">{solo.extra}</p>}
         {solo.percentage !== undefined && (
-          <span className="inline-block px-6 py-2 bg-success/20 text-success rounded-full text-lg font-bold">
+          <span className="inline-block px-6 py-2 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-lg font-bold">
             {Math.round(solo.percentage)}% - {solo.score}/{solo.totalPoints}
           </span>
         )}
@@ -127,7 +127,7 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
                 onWinnerConfirmed?.(solo);
               }}
               variant="secondary"
-              className="px-8 py-4 text-lg font-bold !bg-success/20 !text-success !border-success/30 hover:!bg-success/30"
+              className="px-8 py-4 text-lg font-bold !bg-ramadan-gold/20 !text-ramadan-gold !border-ramadan-gold/30 hover:!bg-ramadan-gold/30"
             >
               تأكيد الفائز
             </Button>
@@ -135,7 +135,7 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
         )}
         {showConfirmButton && confirmed && (
           <div className="mt-6">
-            <span className="px-6 py-3 bg-success/20 text-success rounded-xl font-bold inline-flex items-center gap-2">
+            <span className="px-6 py-3 bg-ramadan-gold/20 text-ramadan-gold rounded-xl font-bold inline-flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -218,7 +218,7 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
                 {winner.extra && <p className="text-white/40 text-sm mt-1">{winner.extra}</p>}
                 {winner.percentage !== undefined && (
                   <div className="mt-4">
-                    <span className="inline-block px-6 py-2 bg-success/20 text-success rounded-full font-bold">
+                    <span className="inline-block px-6 py-2 bg-ramadan-gold/20 text-ramadan-gold rounded-full font-bold">
                       {Math.round(winner.percentage)}% - {winner.score}/{winner.totalPoints}
                     </span>
                   </div>
@@ -261,14 +261,14 @@ export default function DrawMachine({ candidates, title, onWinnerConfirmed, show
                   onWinnerConfirmed?.(winner);
                 }}
                 variant="secondary"
-                className="px-8 py-4 text-lg font-bold !bg-success/20 !text-success !border-success/30 hover:!bg-success/30"
+                className="px-8 py-4 text-lg font-bold !bg-ramadan-gold/20 !text-ramadan-gold !border-ramadan-gold/30 hover:!bg-ramadan-gold/30"
               >
                 تأكيد الفائز
               </Button>
             )}
 
             {showConfirmButton && confirmed && (
-              <span className="px-6 py-3 bg-success/20 text-success rounded-xl font-bold flex items-center gap-2">
+              <span className="px-6 py-3 bg-ramadan-gold/20 text-ramadan-gold rounded-xl font-bold flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>

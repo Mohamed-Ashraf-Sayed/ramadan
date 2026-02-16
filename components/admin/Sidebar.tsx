@@ -58,7 +58,7 @@ export default function Sidebar() {
           </div>
           <div>
             <h1 className="text-lg font-bold text-ramadan-gold">لوحة التحكم</h1>
-            <p className="text-xs text-white/60">أكاديمية أسرة المهيدب - أسداف</p>
+            <p className="text-xs text-white/60">سنا الرمضانية - اشراقات تجمع الأسرة</p>
           </div>
         </div>
       </div>

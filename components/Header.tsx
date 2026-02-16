@@ -19,8 +19,8 @@ export default function Header() {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-ramadan-gold leading-tight">أسداف</h1>
-              <p className="text-xs text-white/60 leading-tight">أكاديمية أسرة المهيدب</p>
+              <h1 className="text-lg font-bold text-ramadan-gold leading-tight">سنا الرمضانية</h1>
+              <p className="text-xs text-white/60 leading-tight">اشراقات تجمع الأسرة</p>
             </div>
           </Link>
 

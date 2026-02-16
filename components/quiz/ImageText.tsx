@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Question } from "@/types";
-import { getMediaUrl } from "@/lib/media";
+import { getMediaUrl, getYoutubeEmbedUrl } from "@/lib/media";
 
 interface ImageTextProps {
   question: Question;
@@ -50,7 +50,14 @@ export default function ImageText({
       {/* Media Display */}
       {question.mediaUrl && (
         <div className="rounded-2xl overflow-hidden border border-ramadan-gold/20">
-          {question.mediaType === "video" ? (
+          {question.mediaType === "youtube" ? (
+            <iframe
+              src={getYoutubeEmbedUrl(question.mediaUrl) || ""}
+              className="w-full aspect-video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : question.mediaType === "video" ? (
             <video
               src={getMediaUrl(question.mediaUrl)}
               controls

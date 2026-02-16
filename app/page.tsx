@@ -133,16 +133,16 @@ export default function Home() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-ramadan-gold/10 border border-ramadan-gold/30 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
                 <span className="w-2 h-2 bg-ramadan-gold rounded-full animate-pulse"></span>
-                <span className="text-ramadan-gold text-sm font-medium">أكاديمية أسرة المهيدب</span>
+                <span className="text-ramadan-gold text-sm font-medium">اشراقات تجمع الأسرة</span>
               </div>
 
               {/* Main Title */}
               <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold mb-6 text-gold-gradient">
-                أَسْــدَافْ
+                سَــنَــا
               </h1>
 
               <p className="text-2xl md:text-3xl mb-4 text-ramadan-gold tracking-widest">
-                ASSDAF
+                الرمضانية
               </p>
 
               {/* Ramadan Greeting */}
@@ -213,10 +213,10 @@ export default function Home() {
                   <span className="text-ramadan-gold text-sm font-medium">من نحن</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                  أكاديمية أسرة المهيدب
+                  سنا الرمضانية
                 </h2>
                 <p className="text-lg text-white/70 mb-6 leading-relaxed">
-                  نقدم لكم منصة أسداف للمسابقات الثقافية، حيث نجمع بين المتعة والفائدة في تجربة تعليمية فريدة لجميع أفراد الأسرة المهيدب وزوجات الأبناء الاسره فقط.
+                  نقدم لكم منصة سنا الرمضانية للمسابقات الثقافية، حيث نجمع بين المتعة والفائدة في تجربة تعليمية فريدة - اشراقات تجمع الأسرة.
                 </p>
                 <p className="text-lg text-white/70 mb-8 leading-relaxed">
                   في هذا الشهر الفضيل، نتشارك معكم روحانية رمضان من خلال مسابقات متنوعة تناسب جميع الأعمار.
@@ -282,7 +282,7 @@ export default function Home() {
                 <div className="w-12 h-px bg-ramadan-gold/50"></div>
               </div>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                لماذا تختار أسداف؟
+                لماذا تختار سنا الرمضانية؟
               </h2>
               <p className="text-lg text-white/60 max-w-2xl mx-auto">
                 نوفر لك تجربة مسابقات فريدة ومميزة بمعايير عالية الجودة
@@ -351,7 +351,7 @@ export default function Home() {
                 كيف تشارك في المسابقة؟
               </h2>
               <p className="text-lg text-white/60 max-w-2xl mx-auto">
-                ثلاث خطوات بسيطة فقط للمشاركة في مسابقات أسداف
+                ثلاث خطوات بسيطة فقط للمشاركة في مسابقات سنا الرمضانية
               </p>
             </div>
 
@@ -433,7 +433,7 @@ export default function Home() {
                   جاهز للتحدي؟
                 </h2>
                 <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto">
-                  انضم الآن إلى  المشاركين واختبر معلوماتك في مسابقات أسداف الثقافية المتنوعة
+                  انضم الآن إلى المشاركين واختبر معلوماتك في مسابقات سنا الرمضانية الثقافية المتنوعة
                 </p>
                 <Link href="/quiz">
                   <Button size="lg" className="bg-ramadan-gold text-ramadan-dark hover:bg-ramadan-gold-light text-lg px-12 py-6 shadow-xl shadow-ramadan-gold/30 font-bold">
@@ -464,7 +464,7 @@ export default function Home() {
 
             <div className="space-y-4">
               {[
-                { q: "هل المشاركة خاصة؟", a: "نعم، المشاركة خاصة لأفراد أسرة المهيدب وزوجات وأبناء الأسرة فقط." },
+                { q: "هل المشاركة خاصة؟", a: "نعم، المشاركة خاصة لأفراد الأسرة فقط." },
                 { q: "هل يمكن المشاركة من الهاتف؟", a: "بالتأكيد! المنصة متوافقة مع جميع الأجهزة - هواتف، تابلت، وأجهزة الكمبيوتر." },
                 { q: "ما هي جوائز المسابقة؟", a: "٣ جوائز يوميًا بقيمة (200) ريال لكل فائز، بالإضافة إلى جوائز قيّمة (جوال + ايباد) خلال السحب الأسبوعي الكبير كل أسبوع." },
                 { q: "ما هي آلية الدخول في السحب الأسبوعي؟", a: "جميع المشاركين بالإجابات الصحيحة خلال الأسبوع يتم دخولهم ضمن السحب الأسبوعي." },
@@ -499,8 +499,8 @@ export default function Home() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-ramadan-gold">أسداف</h3>
-                    <p className="text-sm text-white/60">أكاديمية أسرة المهيدب</p>
+                    <h3 className="text-xl font-bold text-ramadan-gold">سنا الرمضانية</h3>
+                    <p className="text-sm text-white/60">اشراقات تجمع الأسرة</p>
                   </div>
                 </div>
                 <p className="text-white/60 leading-relaxed max-w-md">
@@ -521,7 +521,7 @@ export default function Home() {
               <div>
                 <h4 className="font-bold text-ramadan-gold mb-4">تواصل معنا</h4>
                 <ul className="space-y-2 text-white/60">
-                  <li>أكاديمية أسرة المهيدب</li>
+                  <li>سنا الرمضانية</li>
                   <li>المملكة العربية السعودية</li>
                 </ul>
               </div>
@@ -530,7 +530,7 @@ export default function Home() {
             {/* Bottom */}
             <div className="pt-8 border-t border-ramadan-gold/10 flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-white/40 text-sm">
-                جميع الحقوق محفوظة © {new Date().getFullYear()} أكاديمية أسرة المهيدب
+                جميع الحقوق محفوظة © {new Date().getFullYear()} سنا الرمضانية
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-white/40 text-sm">صنع بـ</span>

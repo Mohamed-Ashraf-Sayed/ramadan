@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, Input, Textarea, Select, Card, CardContent, CardHeader, CardFooter, useToast, useConfirm } from "@/components/ui";
 import type { Quiz, Question, QuestionType } from "@/types";
-import { getMediaUrl } from "@/lib/media";
+import { getMediaUrl, getYoutubeEmbedUrl, isYoutubeUrl } from "@/lib/media";
 
 const questionTypeOptions = [
   { value: "MULTIPLE_CHOICE", label: "اختيار من متعدد" },
@@ -27,6 +27,7 @@ export default function EditQuizPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [mediaSource, setMediaSource] = useState<"upload" | "youtube">("upload");
 
   // New question form
   const [showNewQuestion, setShowNewQuestion] = useState(false);
@@ -119,7 +120,12 @@ export default function EditQuizPage() {
     }
 
     if (newQuestion.type === "IMAGE_TEXT" && !newQuestion.mediaUrl) {
-      toast("يرجى رفع صورة أو فيديو", "warning");
+      toast(mediaSource === "youtube" ? "يرجى إدخال رابط يوتيوب" : "يرجى رفع صورة أو فيديو", "warning");
+      return;
+    }
+
+    if (newQuestion.type === "IMAGE_TEXT" && mediaSource === "youtube" && !isYoutubeUrl(newQuestion.mediaUrl)) {
+      toast("رابط اليوتيوب غير صحيح", "warning");
       return;
     }
 
@@ -369,56 +375,118 @@ export default function EditQuizPage() {
             {/* IMAGE_TEXT specific fields */}
             {newQuestion.type === "IMAGE_TEXT" && (
               <div className="space-y-4">
-                {/* File Upload */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-white">رفع صورة أو فيديو</label>
-                  <div className="flex items-center gap-4">
-                    <label className="flex-1 cursor-pointer">
-                      <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                        newQuestion.mediaUrl ? "border-success/50 bg-success/5" : "border-ramadan-gold/30 hover:border-ramadan-gold/60"
-                      }`}>
-                        {uploading ? (
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="w-8 h-8 border-3 border-ramadan-gold border-t-transparent rounded-full animate-spin"></div>
-                            <p className="text-white/60 text-sm">جاري الرفع...</p>
-                          </div>
-                        ) : newQuestion.mediaUrl ? (
-                          <div className="flex flex-col items-center gap-3">
-                            <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                            <p className="text-success text-sm font-medium">تم رفع الملف بنجاح</p>
-                            <p className="text-white/40 text-xs">انقر لتغيير الملف</p>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-3">
-                            <svg className="w-12 h-12 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <p className="text-white/60 text-sm">انقر لاختيار صورة أو فيديو</p>
-                            <p className="text-white/40 text-xs">JPG, PNG, GIF, MP4, WEBM - حتى 50MB</p>
-                          </div>
-                        )}
-                      </div>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
+                {/* Media Source Toggle */}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMediaSource("upload");
+                      setNewQuestion({ ...newQuestion, mediaUrl: "", mediaType: "" });
+                    }}
+                    className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      mediaSource === "upload"
+                        ? "bg-ramadan-gold/20 text-ramadan-gold border border-ramadan-gold/30"
+                        : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10"
+                    }`}
+                  >
+                    رفع صورة/فيديو
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMediaSource("youtube");
+                      setNewQuestion({ ...newQuestion, mediaUrl: "", mediaType: "youtube" });
+                    }}
+                    className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      mediaSource === "youtube"
+                        ? "bg-ramadan-gold/20 text-ramadan-gold border border-ramadan-gold/30"
+                        : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10"
+                    }`}
+                  >
+                    رابط يوتيوب
+                  </button>
                 </div>
 
+                {/* File Upload */}
+                {mediaSource === "upload" && (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-white">رفع صورة أو فيديو</label>
+                    <div className="flex items-center gap-4">
+                      <label className="flex-1 cursor-pointer">
+                        <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                          newQuestion.mediaUrl ? "border-success/50 bg-success/5" : "border-ramadan-gold/30 hover:border-ramadan-gold/60"
+                        }`}>
+                          {uploading ? (
+                            <div className="flex flex-col items-center gap-3">
+                              <div className="w-8 h-8 border-3 border-ramadan-gold border-t-transparent rounded-full animate-spin"></div>
+                              <p className="text-white/60 text-sm">جاري الرفع...</p>
+                            </div>
+                          ) : newQuestion.mediaUrl ? (
+                            <div className="flex flex-col items-center gap-3">
+                              <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              <p className="text-success text-sm font-medium">تم رفع الملف بنجاح</p>
+                              <p className="text-white/40 text-xs">انقر لتغيير الملف</p>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center gap-3">
+                              <svg className="w-12 h-12 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <p className="text-white/60 text-sm">انقر لاختيار صورة أو فيديو</p>
+                              <p className="text-white/40 text-xs">JPG, PNG, GIF, MP4, WEBM - حتى 50MB</p>
+                            </div>
+                          )}
+                        </div>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* YouTube URL Input */}
+                {mediaSource === "youtube" && (
+                  <div className="space-y-2">
+                    <Input
+                      label="رابط فيديو يوتيوب"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      value={newQuestion.mediaUrl}
+                      onChange={(e) => setNewQuestion({ ...newQuestion, mediaUrl: e.target.value, mediaType: "youtube" })}
+                      dir="ltr"
+                    />
+                    <p className="text-xs text-white/40">
+                      يدعم روابط: youtube.com/watch, youtu.be, youtube.com/shorts
+                    </p>
+                  </div>
+                )}
+
                 {/* Media Preview */}
-                {newQuestion.mediaUrl && (
+                {newQuestion.mediaUrl && mediaSource === "upload" && (
                   <div className="rounded-xl overflow-hidden border border-ramadan-gold/20">
                     {newQuestion.mediaType === "video" ? (
                       <video src={newQuestion.mediaUrl} controls className="w-full max-h-64 object-contain bg-black" />
                     ) : (
                       <img src={newQuestion.mediaUrl} alt="معاينة" className="w-full max-h-64 object-contain" />
                     )}
+                  </div>
+                )}
+
+                {/* YouTube Preview */}
+                {newQuestion.mediaUrl && mediaSource === "youtube" && isYoutubeUrl(newQuestion.mediaUrl) && (
+                  <div className="rounded-xl overflow-hidden border border-ramadan-gold/20">
+                    <iframe
+                      src={getYoutubeEmbedUrl(newQuestion.mediaUrl) || ""}
+                      className="w-full aspect-video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
                   </div>
                 )}
 
