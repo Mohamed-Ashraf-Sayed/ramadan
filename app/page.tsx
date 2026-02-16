@@ -1,8 +1,14 @@
 import Link from "next/link";
 import { Button } from "@/components/ui";
 import Header from "@/components/Header";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export default async function Home() {
+  const [quizCount, submissionCount, questionCount] = await Promise.all([
+    prisma.quiz.count(),
+    prisma.submission.count(),
+    prisma.question.count(),
+  ]);
   return (
     <>
       <Header />
@@ -253,10 +259,9 @@ export default function Home() {
 
                   <div className="grid grid-cols-2 gap-6 mt-8">
                     {[
-                      { number: "+1000", label: "مشارك نشط" },
-                      { number: "+50", label: "مسابقة" },
-                      { number: "+500", label: "سؤال متنوع" },
-                      { number: "98%", label: "رضا المشاركين" },
+                      { number: submissionCount.toLocaleString("ar-EG"), label: "مشارك" },
+                      { number: quizCount.toLocaleString("ar-EG"), label: "مسابقة" },
+                      { number: questionCount.toLocaleString("ar-EG"), label: "سؤال" },
                     ].map((stat, i) => (
                       <div key={i} className="bg-ramadan-gold/10 rounded-2xl p-6 text-center border border-ramadan-gold/20">
                         <p className="text-3xl font-bold text-ramadan-gold mb-2">{stat.number}</p>
