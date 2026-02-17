@@ -10,8 +10,11 @@ export async function GET(request: NextRequest) {
     const fromDate = searchParams.get("fromDate");
     const toDate = searchParams.get("toDate");
 
+    const phone = searchParams.get("phone");
+
     const where: Record<string, unknown> = {};
     if (quizId) where.quizId = parseInt(quizId);
+    if (phone) where.phone = phone;
     if (fromDate || toDate) {
       where.createdAt = {
         ...(fromDate ? { gte: new Date(fromDate) } : {}),
@@ -65,6 +68,19 @@ export async function POST(request: NextRequest) {
 
     if (!quiz) {
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
+    }
+
+    // Check for duplicate submission by phone number
+    if (phone) {
+      const existing = await prisma.submission.findFirst({
+        where: { quizId, phone },
+      });
+      if (existing) {
+        return NextResponse.json(
+          { error: "لقد شاركت في هذا الاختبار من قبل" },
+          { status: 409 }
+        );
+      }
     }
 
     // Helper function to parse JSON field

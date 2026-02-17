@@ -87,6 +87,14 @@ export default function QuizStartPage() {
       if (response.ok) {
         const result = await response.json();
         sessionStorage.removeItem(`quiz_${quizId}_participant`);
+        // Mark quiz as completed on this device
+        try {
+          const done = JSON.parse(localStorage.getItem("completed_quizzes") || "[]") as string[];
+          if (!done.includes(quizId)) {
+            done.push(quizId);
+            localStorage.setItem("completed_quizzes", JSON.stringify(done));
+          }
+        } catch { /* ignore */ }
         router.push(`/result/${result.id}`);
       } else {
         toast("حدث خطأ أثناء إرسال الإجابات", "error");
