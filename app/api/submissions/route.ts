@@ -236,7 +236,9 @@ export async function POST(request: NextRequest) {
               }
             }
             const ratio = matched / keywords.length;
-            score += Math.round(question.points * ratio);
+            const earned = Math.round(question.points * ratio);
+            // Ensure at least 1 point if any keyword matched
+            score += matched > 0 ? Math.max(1, earned) : 0;
           }
         } else if (question.type === "IMAGE_TEXT") {
           // For image+text - fuzzy string matching
