@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
         } else if (question.type === "TEXT") {
           // For text - proportional keyword matching
           const keywords = String(correctAnswer)
-            .split(",")
+            .split(/[,،]/)
             .map(k => k.trim())
             .filter(k => k.length > 0);
           if (keywords.length > 0) {
