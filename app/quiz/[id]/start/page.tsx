@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Button, Card, CardContent, useToast } from "@/components/ui";
 import QuestionRenderer from "@/components/quiz/QuestionRenderer";
+import { getDeviceFingerprint } from "@/lib/fingerprint";
 import type { Quiz, Question, ParticipantInfo } from "@/types";
 
 export default function QuizStartPage() {
@@ -74,6 +75,7 @@ export default function QuizStartPage() {
     setSubmitting(true);
 
     try {
+      const fingerprint = await getDeviceFingerprint();
       const response = await fetch("/api/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,6 +83,7 @@ export default function QuizStartPage() {
           quizId: parseInt(quizId),
           ...participant,
           answers,
+          fingerprint,
         }),
       });
 

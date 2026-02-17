@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { quizId, name, phone, answers } = body;
+    const { quizId, name, phone, answers, fingerprint } = body;
 
     if (!quizId || !name || !answers) {
       return NextResponse.json(
@@ -82,6 +82,19 @@ export async function POST(request: NextRequest) {
           );
         }
       } catch { /* ignore malformed cookie */ }
+    }
+
+    // Check for duplicate submission by fingerprint
+    if (fingerprint) {
+      const existingByFingerprint = await prisma.submission.findFirst({
+        where: { quizId, fingerprint },
+      });
+      if (existingByFingerprint) {
+        return NextResponse.json(
+          { error: "لقد شاركت في هذا الاختبار من قبل" },
+          { status: 409 }
+        );
+      }
     }
 
     // Check for duplicate submission by phone number
@@ -229,6 +242,7 @@ export async function POST(request: NextRequest) {
         quizId,
         name,
         phone,
+        fingerprint,
         answers,
         score,
         totalPoints,

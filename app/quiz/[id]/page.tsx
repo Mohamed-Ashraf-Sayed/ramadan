@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Button, Input, Card, CardContent, CardHeader, CardFooter } from "@/components/ui";
+import { getDeviceFingerprint } from "@/lib/fingerprint";
 import type { Quiz } from "@/types";
 
 export default function QuizRegistrationPage() {
@@ -31,11 +32,18 @@ export default function QuizRegistrationPage() {
       }
     } catch { /* ignore */ }
 
-    // Check server cookie
-    fetch(`/api/submissions/check?quizId=${quizId}`)
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.completed) setAlreadyDone(true); })
-      .catch(() => {});
+    // Check server cookie + device fingerprint
+    async function checkDevice() {
+      try {
+        const fp = await getDeviceFingerprint();
+        const res = await fetch(`/api/submissions/check?quizId=${quizId}&fingerprint=${fp}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.completed) setAlreadyDone(true);
+        }
+      } catch { /* ignore */ }
+    }
+    checkDevice();
   }, [quizId]);
 
   useEffect(() => {

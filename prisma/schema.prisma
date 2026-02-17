@@ -80,6 +80,7 @@ model Submission {
   name        String
   email       String?
   phone       String?
+  fingerprint String?
 
   answers     Json
   score       Int
@@ -89,4 +90,5 @@ model Submission {
   createdAt   DateTime @default(now())
 
   @@index([quizId])
+  @@index([fingerprint])
 }
