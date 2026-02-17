@@ -22,13 +22,20 @@ export default function QuizRegistrationPage() {
   const [alreadyDone, setAlreadyDone] = useState(false);
 
   useEffect(() => {
-    // Check if this device already completed this quiz
+    // Check localStorage
     try {
       const done = JSON.parse(localStorage.getItem("completed_quizzes") || "[]") as string[];
       if (done.includes(quizId)) {
         setAlreadyDone(true);
+        return;
       }
     } catch { /* ignore */ }
+
+    // Check server cookie
+    fetch(`/api/submissions/check?quizId=${quizId}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.completed) setAlreadyDone(true); })
+      .catch(() => {});
   }, [quizId]);
 
   useEffect(() => {

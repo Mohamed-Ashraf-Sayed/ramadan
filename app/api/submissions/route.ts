@@ -70,6 +70,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
     }
 
+    // Check for duplicate submission by device cookie
+    const completedCookie = request.cookies.get("completed_quizzes")?.value;
+    if (completedCookie) {
+      try {
+        const completedIds = JSON.parse(completedCookie) as number[];
+        if (completedIds.includes(quizId)) {
+          return NextResponse.json(
+            { error: "لقد شاركت في هذا الاختبار من قبل" },
+            { status: 409 }
+          );
+        }
+      } catch { /* ignore malformed cookie */ }
+    }
+
     // Check for duplicate submission by phone number
     if (phone) {
       const existing = await prisma.submission.findFirst({
@@ -222,7 +236,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(submission, { status: 201 });
+    // Set cookie to mark quiz as completed on this device
+    const prevCompleted = completedCookie ? JSON.parse(completedCookie) as number[] : [];
+    prevCompleted.push(quizId);
+    const response = NextResponse.json(submission, { status: 201 });
+    response.cookies.set("completed_quizzes", JSON.stringify(prevCompleted), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 120, // 120 days
+      path: "/",
+    });
+    return response;
   } catch (error) {
     console.error("Error creating submission:", error);
     return NextResponse.json(
