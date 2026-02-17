@@ -89,16 +89,16 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
             {/* Content */}
             <div className="px-6 pt-4 pb-2 text-center">
               {options.title && (
-                <h3 className="text-lg font-bold text-white mb-2">{options.title}</h3>
+                <h3 className="text-lg font-bold text-foreground mb-2">{options.title}</h3>
               )}
-              <p className="text-white/70 text-sm leading-relaxed">{options.message}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">{options.message}</p>
             </div>
 
             {/* Actions */}
             <div className="flex gap-3 p-5">
               <button
                 onClick={handleCancel}
-                className="flex-1 px-4 py-2.5 rounded-xl border-2 border-white/10 text-white/70 text-sm font-semibold hover:bg-white/5 transition-colors cursor-pointer"
+                className="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-300 text-gray-600 text-sm font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
               >
                 {options.cancelText || "إلغاء"}
               </button>

@@ -1,40 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  /* ألوان رمضان */
-  --ramadan-navy: #1a1a2e;
-  --ramadan-purple: #16213e;
-  --ramadan-dark: #0f0f23;
-  --ramadan-gold: #d4af37;
-  --ramadan-gold-light: #f4d03f;
-  --ramadan-amber: #e8a838;
-  --ramadan-orange: #ff6b35;
+  /* ألوان سنا الرمضانية - ثيم فاتح أزرق */
+  --ramadan-navy: #f0f5fa;
+  --ramadan-purple: #e4edf5;
+  --ramadan-dark: #0f2b46;
+  --ramadan-gold: #2e7dba;
+  --ramadan-gold-light: #5ba3d9;
+  --ramadan-amber: #3d8fc7;
+  --ramadan-orange: #1a6fb0;
 
-  /* درجات البيج */
-  --beige-50: #fefdfb;
-  --beige-100: #faf6f0;
-  --beige-200: #f5efe5;
-  --beige-300: #ece4d6;
-  --beige-400: #ddd2be;
-  --beige-500: #c9b896;
-  --beige-600: #b5a07a;
-  --beige-700: #9a8562;
-  --beige-800: #7d6c50;
-  --beige-900: #5c4f3a;
+  /* درجات الأزرق الرمادي */
+  --beige-50: #f8fafc;
+  --beige-100: #f1f5f9;
+  --beige-200: #e2e8f0;
+  --beige-300: #cbd5e1;
+  --beige-400: #94a3b8;
+  --beige-500: #64748b;
+  --beige-600: #475569;
+  --beige-700: #334155;
+  --beige-800: #1e293b;
+  --beige-900: #0f172a;
 
   /* الألوان الأساسية */
-  --primary: #d4af37;
-  --primary-dark: #b8960c;
-  --primary-light: #f4d03f;
-  --accent: #ff6b35;
-  --accent-light: #ff8c5a;
-  --background: #1a1a2e;
-  --foreground: #ffffff;
-  --card: #16213e;
-  --card-foreground: #ffffff;
-  --muted: #1f2544;
-  --muted-foreground: #a0a0b8;
-  --border: #2a2a4a;
+  --primary: #2e7dba;
+  --primary-dark: #1a5c94;
+  --primary-light: #5ba3d9;
+  --accent: #1a6fb0;
+  --accent-light: #3d8fc7;
+  --background: #f5f8fc;
+  --foreground: #1a2e3f;
+  --card: #ffffff;
+  --card-foreground: #1a2e3f;
+  --muted: #e8eff5;
+  --muted-foreground: #5a7a94;
+  --border: #d0dbe6;
   --success: #22c55e;
   --error: #ef4444;
 }
@@ -88,16 +88,16 @@ body {
 /* Islamic pattern background */
 .islamic-pattern {
   background-color: var(--ramadan-navy);
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232e7dba' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* Ramadan Night Sky */
+/* Ramadan Light Sky */
 .ramadan-sky {
   background: linear-gradient(180deg,
-    #0f0f23 0%,
-    #1a1a2e 30%,
-    #16213e 60%,
-    #1f2544 100%
+    #e8f1fa 0%,
+    #f0f5fa 30%,
+    #e4edf5 60%,
+    #dce6f0 100%
   );
 }
 
@@ -198,10 +198,10 @@ body {
 /* Glow animation */
 @keyframes glow {
   0%, 100% {
-    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+    filter: drop-shadow(0 0 10px rgba(46, 125, 186, 0.5));
   }
   50% {
-    filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.8));
+    filter: drop-shadow(0 0 25px rgba(46, 125, 186, 0.8));
   }
 }
 
@@ -216,12 +216,12 @@ body {
 
 /* Lantern glow effect */
 .lantern-glow {
-  filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+  filter: drop-shadow(0 0 15px rgba(46, 125, 186, 0.6));
 }
 
-/* Gold text gradient */
+/* Blue text gradient */
 .text-gold-gradient {
-  background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%);
+  background: linear-gradient(135deg, #1a5c94 0%, #2e7dba 50%, #5ba3d9 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -312,4 +312,27 @@ body {
 
 .animate-scale-in {
   animation: scale-in 0.25s ease-out;
+}
+
+/* Admin theme - preserve dark colors for admin pages */
+.admin-theme {
+  --ramadan-navy: #1a1a2e;
+  --ramadan-purple: #16213e;
+  --ramadan-dark: #0f0f23;
+  --ramadan-gold: #d4af37;
+  --ramadan-gold-light: #f4d03f;
+  --ramadan-amber: #e8a838;
+  --ramadan-orange: #ff6b35;
+  --background: #1a1a2e;
+  --foreground: #ffffff;
+  --card: #16213e;
+  --card-foreground: #ffffff;
+  --muted: #1f2544;
+  --muted-foreground: #a0a0b8;
+  --border: #2a2a4a;
+  --primary: #d4af37;
+  --primary-dark: #b8960c;
+  --primary-light: #f4d03f;
+  --accent: #ff6b35;
+  --accent-light: #ff8c5a;
 }

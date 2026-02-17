@@ -40,7 +40,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-ramadan-dark islamic-pattern flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ramadan-dark islamic-pattern flex items-center justify-center px-4 admin-theme">
       <div className="w-full max-w-md bg-ramadan-navy/90 backdrop-blur-sm border border-ramadan-gold/20 rounded-2xl p-8">
         <div className="text-center mb-6">
           <div className="w-16 h-16 mx-auto mb-4 bg-ramadan-gold/20 border border-ramadan-gold/30 rounded-full flex items-center justify-center">

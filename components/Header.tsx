@@ -7,7 +7,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-ramadan-dark/95 backdrop-blur-sm shadow-lg sticky top-0 z-50 border-b border-ramadan-gold/20">
+    <header className="bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-ramadan-gold/20">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -20,7 +20,7 @@ export default function Header() {
             </div>
             <div>
               <h1 className="text-lg font-bold text-ramadan-gold leading-tight">سنا الرمضانية</h1>
-              <p className="text-xs text-white/60 leading-tight">اشراقات تجمع الأسرة</p>
+              <p className="text-xs text-gray-500 leading-tight">اشراقات تجمع الأسرة</p>
             </div>
           </Link>
 
@@ -28,13 +28,13 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-6">
             <Link
               href="/"
-              className="text-white/80 hover:text-ramadan-gold transition-colors font-medium"
+              className="text-gray-700 hover:text-ramadan-gold transition-colors font-medium"
             >
               الرئيسية
             </Link>
             <Link
               href="/quiz"
-              className="text-white/80 hover:text-ramadan-gold transition-colors font-medium"
+              className="text-gray-700 hover:text-ramadan-gold transition-colors font-medium"
             >
               المسابقات
             </Link>
@@ -49,7 +49,7 @@ export default function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-white hover:bg-ramadan-gold/10 rounded-lg transition-colors"
+            className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             {isMenuOpen ? (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,14 +69,14 @@ export default function Header() {
             <div className="flex flex-col gap-2">
               <Link
                 href="/"
-                className="px-4 py-3 text-white hover:bg-ramadan-gold/10 rounded-lg transition-colors font-medium"
+                className="px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 الرئيسية
               </Link>
               <Link
                 href="/quiz"
-                className="px-4 py-3 text-white hover:bg-ramadan-gold/10 rounded-lg transition-colors font-medium"
+                className="px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 المسابقات

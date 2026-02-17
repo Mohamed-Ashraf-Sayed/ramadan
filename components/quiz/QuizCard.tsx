@@ -18,7 +18,7 @@ export default function QuizCard({ quiz }: QuizCardProps) {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-white group-hover:text-ramadan-gold transition-colors line-clamp-1">
+            <h3 className="text-xl font-bold text-foreground group-hover:text-ramadan-gold transition-colors line-clamp-1">
               {quiz.title}
             </h3>
           </div>
@@ -32,13 +32,13 @@ export default function QuizCard({ quiz }: QuizCardProps) {
 
         {/* Description */}
         {quiz.description && (
-          <p className="text-white/60 text-sm line-clamp-2 mb-4 leading-relaxed">
+          <p className="text-gray-500 text-sm line-clamp-2 mb-4 leading-relaxed">
             {quiz.description}
           </p>
         )}
 
         {/* Stats */}
-        <div className="flex items-center gap-4 text-sm text-white/60 mb-6">
+        <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
           <div className="flex items-center gap-1.5">
             <div className="w-8 h-8 rounded-lg bg-ramadan-gold/10 flex items-center justify-center">
               <svg className="w-4 h-4 text-ramadan-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -26,15 +26,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ramadan-navy disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none active:scale-[0.98] cursor-pointer";
+      "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none active:scale-[0.98] cursor-pointer";
 
     const variants = {
       primary:
         "bg-gradient-to-l from-ramadan-gold to-ramadan-amber text-ramadan-dark hover:from-ramadan-gold-light hover:to-ramadan-gold focus:ring-ramadan-gold shadow-lg shadow-ramadan-gold/25 hover:shadow-xl hover:shadow-ramadan-gold/30 hover:-translate-y-0.5",
       secondary:
-        "bg-gradient-to-l from-ramadan-orange to-orange-400 text-white hover:from-orange-400 hover:to-ramadan-orange focus:ring-ramadan-orange shadow-lg shadow-ramadan-orange/25 hover:shadow-xl hover:shadow-ramadan-orange/30 hover:-translate-y-0.5",
+        "bg-gradient-to-l from-ramadan-orange to-ramadan-amber text-white hover:from-orange-400 hover:to-ramadan-orange focus:ring-ramadan-orange shadow-lg shadow-ramadan-orange/25 hover:shadow-xl hover:shadow-ramadan-orange/30 hover:-translate-y-0.5",
       accent:
-        "bg-ramadan-orange text-white hover:bg-orange-400 focus:ring-ramadan-orange shadow-md hover:shadow-lg hover:-translate-y-0.5",
+        "bg-ramadan-orange text-white hover:bg-ramadan-amber focus:ring-ramadan-orange shadow-md hover:shadow-lg hover:-translate-y-0.5",
       outline:
         "border-2 border-ramadan-gold text-ramadan-gold bg-transparent hover:bg-ramadan-gold hover:text-ramadan-dark focus:ring-ramadan-gold hover:shadow-lg hover:shadow-ramadan-gold/20 hover:-translate-y-0.5",
       ghost:

@@ -17,7 +17,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-white mb-2"
+            className="block text-sm font-medium text-foreground mb-2"
           >
             {label}
           </label>
@@ -27,8 +27,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={inputId}
           className={`
             w-full px-4 py-3 rounded-lg border-2 transition-all duration-200
-            bg-ramadan-navy text-white placeholder-white/40
-            focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-ramadan-navy resize-y min-h-[100px]
+            bg-white text-foreground placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white resize-y min-h-[100px]
             ${
               error
                 ? "border-error focus:border-error focus:ring-error/30"
@@ -40,7 +40,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         />
         {error && <p className="mt-1.5 text-sm text-error">{error}</p>}
         {helperText && !error && (
-          <p className="mt-1.5 text-sm text-white/50">{helperText}</p>
+          <p className="mt-1.5 text-sm text-muted-foreground">{helperText}</p>
         )}
       </div>
     );

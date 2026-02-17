@@ -38,10 +38,10 @@ export default function ResultPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-ramadan-dark via-ramadan-navy to-ramadan-purple flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#e8f1fa] via-[#f0f5fa] to-[#e4edf5] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-ramadan-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/60">جاري تحميل النتيجة...</p>
+          <p className="text-gray-500">جاري تحميل النتيجة...</p>
         </div>
       </div>
     );
@@ -49,7 +49,7 @@ export default function ResultPage() {
 
   if (!submission) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-ramadan-dark via-ramadan-navy to-ramadan-purple flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-b from-[#e8f1fa] via-[#f0f5fa] to-[#e4edf5] flex items-center justify-center px-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-ramadan-gold mb-4">
             النتيجة غير موجودة
@@ -84,14 +84,14 @@ export default function ResultPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-ramadan-dark via-ramadan-navy to-ramadan-purple py-12 px-4 flex items-center justify-center">
+    <main className="min-h-screen bg-gradient-to-b from-[#e8f1fa] via-[#f0f5fa] to-[#e4edf5] py-12 px-4 flex items-center justify-center">
       <div className="max-w-2xl w-full">
         {/* Result Card */}
-        <div className="bg-ramadan-navy/80 border border-ramadan-gold/20 rounded-2xl mb-6 overflow-hidden shadow-xl">
+        <div className="bg-white border border-ramadan-gold/20 rounded-2xl mb-6 overflow-hidden shadow-xl">
           {/* Header with gradient */}
-          <div className="bg-gradient-to-l from-ramadan-gold/20 to-ramadan-purple text-white p-8 text-center border-b border-ramadan-gold/20">
+          <div className="bg-gradient-to-l from-ramadan-gold/20 to-ramadan-purple text-foreground p-8 text-center border-b border-ramadan-gold/20">
             <h1 className="text-2xl font-bold mb-2 text-ramadan-gold">نتيجة الاختبار</h1>
-            <p className="text-white/80">{submission.quiz.title}</p>
+            <p className="text-gray-700">{submission.quiz.title}</p>
           </div>
 
           <div className="p-8">
@@ -100,7 +100,7 @@ export default function ResultPage() {
               <div className="relative inline-flex items-center justify-center w-40 h-40">
                 <svg className="w-40 h-40 transform -rotate-90">
                   <circle
-                    className="text-white/10"
+                    className="text-gray-200"
                     strokeWidth="8"
                     stroke="currentColor"
                     fill="transparent"
@@ -132,7 +132,7 @@ export default function ResultPage() {
                 {getScoreMessage()}
               </h2>
 
-              <p className="text-white/60 mt-2">
+              <p className="text-gray-500 mt-2">
                 حصلت على {submission.score} من {submission.totalPoints} نقطة
               </p>
             </div>
@@ -143,27 +143,27 @@ export default function ResultPage() {
                 <p className="text-2xl font-bold text-ramadan-gold">
                   {submission.totalPoints}
                 </p>
-                <p className="text-sm text-white/60">إجمالي النقاط</p>
+                <p className="text-sm text-gray-500">إجمالي النقاط</p>
               </div>
               <div className="text-center p-4 bg-success/10 rounded-xl border border-success/20">
                 <p className="text-2xl font-bold text-success">
                   {submission.score}
                 </p>
-                <p className="text-sm text-white/60">نقاطك</p>
+                <p className="text-sm text-gray-500">نقاطك</p>
               </div>
               <div className="text-center p-4 bg-error/10 rounded-xl border border-error/20">
                 <p className="text-2xl font-bold text-error">
                   {submission.totalPoints - submission.score}
                 </p>
-                <p className="text-sm text-white/60">خسرت</p>
+                <p className="text-sm text-gray-500">خسرت</p>
               </div>
             </div>
 
             {/* Participant Info */}
             <div className="bg-ramadan-purple/30 p-4 rounded-xl mb-6 border border-ramadan-gold/10">
               <h3 className="font-bold text-ramadan-gold mb-2">بيانات المشترك</h3>
-              <p className="text-sm text-white/70">
-                <span className="font-medium text-white/90">الاسم:</span> {submission.name}
+              <p className="text-sm text-gray-600">
+                <span className="font-medium text-gray-800">الاسم:</span> {submission.name}
               </p>
             </div>
 

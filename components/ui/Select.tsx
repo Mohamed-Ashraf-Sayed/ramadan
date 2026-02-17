@@ -17,7 +17,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-white mb-2"
+            className="block text-sm font-medium text-foreground mb-2"
           >
             {label}
           </label>
@@ -27,8 +27,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           id={inputId}
           className={`
             w-full px-4 py-3 rounded-lg border-2 transition-all duration-200
-            bg-ramadan-navy text-white cursor-pointer
-            focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-ramadan-navy
+            bg-white text-foreground cursor-pointer
+            focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white
             ${
               error
                 ? "border-error focus:border-error focus:ring-error/30"
@@ -39,7 +39,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           {...props}
         >
           {options.map((option) => (
-            <option key={option.value} value={option.value} className="bg-ramadan-navy text-white">
+            <option key={option.value} value={option.value} className="bg-white text-foreground">
               {option.label}
             </option>
           ))}

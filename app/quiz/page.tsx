@@ -46,7 +46,7 @@ export default async function QuizzesPage() {
             {[...Array(30)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-1 h-1 bg-white rounded-full animate-twinkle"
+                className="absolute w-1 h-1 bg-ramadan-gold/20 rounded-full animate-twinkle"
                 style={{
                   top: `${Math.random() * 100}%`,
                   left: `${Math.random() * 100}%`,
@@ -59,12 +59,12 @@ export default async function QuizzesPage() {
 
           {/* Islamic pattern */}
           <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23d4af37' stroke-width='0.5'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z'/%3E%3Cpath d='M30 15L45 30L30 45L15 30Z'/%3E%3Ccircle cx='30' cy='30' r='10'/%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%232e7dba' stroke-width='0.5'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z'/%3E%3Cpath d='M30 15L45 30L30 45L15 30Z'/%3E%3Ccircle cx='30' cy='30' r='10'/%3E%3C/g%3E%3C/svg%3E")`,
           }}></div>
 
           {/* Mosque silhouette */}
           <div className="absolute bottom-0 left-0 right-0 opacity-20">
-            <svg viewBox="0 0 1200 100" className="w-full" fill="#0f0f23" preserveAspectRatio="xMidYMax slice">
+            <svg viewBox="0 0 1200 100" className="w-full" fill="#d0dbe6" preserveAspectRatio="xMidYMax slice">
               <path d="M0 100 L0 70 L100 70 L100 50 L120 30 L140 50 L140 70 L300 70 L300 40 L330 40 L350 10 L370 40 L400 40 L400 70 L550 70 L550 50 L570 30 L590 50 L590 70 L750 70 L750 40 L780 40 L800 10 L820 40 L850 40 L850 70 L1000 70 L1000 50 L1020 30 L1040 50 L1040 70 L1200 70 L1200 100 Z"/>
             </svg>
           </div>
@@ -72,22 +72,22 @@ export default async function QuizzesPage() {
           {/* Lanterns */}
           <div className="absolute top-0 left-[15%] animate-lantern hidden md:block" style={{ animationDelay: '0s' }}>
             <svg className="w-10 h-20 lantern-glow" viewBox="0 0 40 80" fill="none">
-              <path d="M20 0 L20 10" stroke="#d4af37" strokeWidth="2"/>
-              <path d="M12 10 L28 10 L26 15 L14 15 Z" fill="#d4af37"/>
-              <path d="M14 15 L14 55 Q14 65 20 65 Q26 65 26 55 L26 15 Z" fill="#ff6b35" fillOpacity="0.3" stroke="#d4af37" strokeWidth="1.5"/>
-              <ellipse cx="20" cy="40" rx="4" ry="12" fill="#ff6b35" fillOpacity="0.6"/>
+              <path d="M20 0 L20 10" stroke="#2e7dba" strokeWidth="2"/>
+              <path d="M12 10 L28 10 L26 15 L14 15 Z" fill="#2e7dba"/>
+              <path d="M14 15 L14 55 Q14 65 20 65 Q26 65 26 55 L26 15 Z" fill="#5ba3d9" fillOpacity="0.3" stroke="#2e7dba" strokeWidth="1.5"/>
+              <ellipse cx="20" cy="40" rx="4" ry="12" fill="#5ba3d9" fillOpacity="0.6"/>
             </svg>
           </div>
           <div className="absolute top-0 right-[15%] animate-lantern hidden md:block" style={{ animationDelay: '1s' }}>
             <svg className="w-10 h-20 lantern-glow" viewBox="0 0 40 80" fill="none">
-              <path d="M20 0 L20 10" stroke="#d4af37" strokeWidth="2"/>
-              <path d="M12 10 L28 10 L26 15 L14 15 Z" fill="#d4af37"/>
-              <path d="M14 15 L14 55 Q14 65 20 65 Q26 65 26 55 L26 15 Z" fill="#ff6b35" fillOpacity="0.3" stroke="#d4af37" strokeWidth="1.5"/>
-              <ellipse cx="20" cy="40" rx="4" ry="12" fill="#ff6b35" fillOpacity="0.6"/>
+              <path d="M20 0 L20 10" stroke="#2e7dba" strokeWidth="2"/>
+              <path d="M12 10 L28 10 L26 15 L14 15 Z" fill="#2e7dba"/>
+              <path d="M14 15 L14 55 Q14 65 20 65 Q26 65 26 55 L26 15 Z" fill="#5ba3d9" fillOpacity="0.3" stroke="#2e7dba" strokeWidth="1.5"/>
+              <ellipse cx="20" cy="40" rx="4" ry="12" fill="#5ba3d9" fillOpacity="0.6"/>
             </svg>
           </div>
 
-          <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
+          <div className="relative z-10 max-w-4xl mx-auto text-center text-foreground">
             {/* Icon */}
             <div className="w-20 h-20 mx-auto mb-6 bg-ramadan-gold/10 border border-ramadan-gold/30 backdrop-blur-sm rounded-2xl flex items-center justify-center">
               <svg className="w-10 h-10 text-ramadan-gold" viewBox="0 0 24 24" fill="currentColor">
@@ -97,7 +97,7 @@ export default async function QuizzesPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gold-gradient">
               مسابقات سنا الرمضانية
             </h1>
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto">
               اختر مسابقة من المسابقات المتاحة وابدأ التحدي الآن
             </p>
 
@@ -105,21 +105,21 @@ export default async function QuizzesPage() {
             <div className="flex justify-center gap-8 mt-8">
               <div className="text-center">
                 <p className="text-3xl font-bold text-ramadan-gold">{quizzes.length}</p>
-                <p className="text-sm text-white/60">مسابقة متاحة</p>
+                <p className="text-sm text-gray-500">مسابقة متاحة</p>
               </div>
               <div className="w-px bg-ramadan-gold/30"></div>
               <div className="text-center">
                 <p className="text-3xl font-bold text-ramadan-gold">
                   {quizzes.reduce((acc, q) => acc + (q._count?.questions || 0), 0)}
                 </p>
-                <p className="text-sm text-white/60">سؤال</p>
+                <p className="text-sm text-gray-500">سؤال</p>
               </div>
               <div className="w-px bg-ramadan-gold/30"></div>
               <div className="text-center">
                 <p className="text-3xl font-bold text-ramadan-gold">
                   {quizzes.reduce((acc, q) => acc + (q._count?.submissions || 0), 0)}
                 </p>
-                <p className="text-sm text-white/60">مشارك</p>
+                <p className="text-sm text-gray-500">مشارك</p>
               </div>
             </div>
           </div>
@@ -132,8 +132,8 @@ export default async function QuizzesPage() {
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
                 <pattern id="quizPattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M20 0L40 20L20 40L0 20Z" fill="none" stroke="#d4af37" strokeWidth="0.3"/>
-                  <circle cx="20" cy="20" r="8" fill="none" stroke="#d4af37" strokeWidth="0.2"/>
+                  <path d="M20 0L40 20L20 40L0 20Z" fill="none" stroke="#2e7dba" strokeWidth="0.3"/>
+                  <circle cx="20" cy="20" r="8" fill="none" stroke="#2e7dba" strokeWidth="0.2"/>
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#quizPattern)"/>
@@ -144,8 +144,8 @@ export default async function QuizzesPage() {
             {/* Section Header */}
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-white">المسابقات المتاحة</h2>
-                <p className="text-white/60 mt-1">اختر المسابقة التي تناسبك</p>
+                <h2 className="text-2xl font-bold text-foreground">المسابقات المتاحة</h2>
+                <p className="text-gray-500 mt-1">اختر المسابقة التي تناسبك</p>
               </div>
               <Link
                 href="/"
@@ -178,10 +178,10 @@ export default async function QuizzesPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <h2 className="text-3xl font-bold text-white mb-4">
+                <h2 className="text-3xl font-bold text-foreground mb-4">
                   لا توجد مسابقات حالياً
                 </h2>
-                <p className="text-lg text-white/60 mb-8 max-w-md mx-auto">
+                <p className="text-lg text-gray-500 mb-8 max-w-md mx-auto">
                   سيتم إضافة مسابقات جديدة قريباً، ترقبوا المزيد من التحديات المثيرة!
                 </p>
                 <Link

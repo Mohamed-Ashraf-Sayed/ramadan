@@ -18,14 +18,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-semibold text-white mb-2"
+            className="block text-sm font-semibold text-foreground mb-2"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {icon && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 pointer-events-none">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
               {icon}
             </div>
           )}
@@ -34,8 +34,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             className={`
               w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 ease-out
-              bg-ramadan-navy text-white placeholder-white/40
-              focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-ramadan-navy
+              bg-white text-foreground placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white
               hover:border-ramadan-gold/50
               ${icon ? "pr-12" : ""}
               ${
@@ -57,7 +57,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           </p>
         )}
         {helperText && !error && (
-          <p className="mt-2 text-sm text-white/50">{helperText}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{helperText}</p>
         )}
       </div>
     );

@@ -78,7 +78,7 @@ export default function ImageText({
 
       {/* Text Input */}
       <div className="space-y-3">
-        <label className="block text-sm font-medium text-white/80">
+        <label className="block text-sm font-medium text-foreground">
           اكتب إجابتك هنا
         </label>
         <input
@@ -89,8 +89,8 @@ export default function ImageText({
           placeholder="اكتب الإجابة..."
           className={`
             w-full px-5 py-4 rounded-xl border-2 text-lg transition-all duration-200
-            bg-ramadan-navy text-white placeholder-white/40
-            focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-ramadan-navy
+            bg-white text-foreground placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white
             ${disabled ? "opacity-70 cursor-not-allowed" : ""}
             ${
               showResult
@@ -125,7 +125,7 @@ export default function ImageText({
               </svg>
               <div>
                 <span className="text-error font-medium">إجابة خاطئة</span>
-                <p className="text-white/70 text-sm mt-1">
+                <p className="text-gray-600 text-sm mt-1">
                   الإجابة الصحيحة: <span className="text-success font-bold">{correctAnswer}</span>
                 </p>
               </div>

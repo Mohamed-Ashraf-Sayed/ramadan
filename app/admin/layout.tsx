@@ -17,7 +17,7 @@ export default async function AdminLayout({
 
   return (
     <SessionProvider>
-      <div className="min-h-screen bg-ramadan-navy">
+      <div className="min-h-screen bg-ramadan-navy admin-theme">
         <Sidebar />
         <main className="mr-64 min-h-screen p-8">{children}</main>
       </div>
