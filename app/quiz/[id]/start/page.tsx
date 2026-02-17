@@ -75,7 +75,10 @@ export default function QuizStartPage() {
     setSubmitting(true);
 
     try {
-      const fingerprint = await getDeviceFingerprint();
+      let fingerprint: string | undefined;
+      try {
+        fingerprint = await getDeviceFingerprint();
+      } catch { /* ignore fingerprint errors */ }
       const response = await fetch("/api/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,8 +90,8 @@ export default function QuizStartPage() {
         }),
       });
 
+      const result = await response.json();
       if (response.ok) {
-        const result = await response.json();
         sessionStorage.removeItem(`quiz_${quizId}_participant`);
         // Mark quiz as completed on this device
         try {
@@ -100,7 +103,7 @@ export default function QuizStartPage() {
         } catch { /* ignore */ }
         router.push(`/result/${result.id}`);
       } else {
-        toast("حدث خطأ أثناء إرسال الإجابات", "error");
+        toast(result?.error || "حدث خطأ أثناء إرسال الإجابات", "error");
       }
     } catch (error) {
       console.error("Error submitting quiz:", error);
