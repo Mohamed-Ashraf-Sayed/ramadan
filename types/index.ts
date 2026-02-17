@@ -1,4 +1,4 @@
-export type QuestionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "ORDERING" | "IMAGE_TEXT";
+export type QuestionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "ORDERING" | "IMAGE_TEXT" | "TEXT";
 
 export interface Quiz {
   id: number;

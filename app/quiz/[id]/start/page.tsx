@@ -174,6 +174,7 @@ export default function QuizStartPage() {
                 {currentQuestion.type === "MULTIPLE_CHOICE" && "اختيار من متعدد"}
                 {currentQuestion.type === "TRUE_FALSE" && "صح أو خطأ"}
                 {currentQuestion.type === "ORDERING" && "ترتيب"}
+                {currentQuestion.type === "TEXT" && "إجابة نصية"}
               </span>
               <span className="mr-auto text-sm text-accent font-medium">
                 {currentQuestion.points} {currentQuestion.points === 1 ? "نقطة" : "نقاط"}

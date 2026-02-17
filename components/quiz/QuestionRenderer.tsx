@@ -5,6 +5,7 @@ import MultipleChoice from "./MultipleChoice";
 import TrueFalse from "./TrueFalse";
 import Ordering from "./Ordering";
 import ImageText from "./ImageText";
+import TextAnswer from "./TextAnswer";
 
 interface QuestionRendererProps {
   question: Question;
@@ -87,6 +88,18 @@ export default function QuestionRenderer({
           onAnswer={(id, ans) => onAnswer(id, ans)}
           disabled={disabled}
           showResult={showResult}
+        />
+      );
+
+    case "TEXT":
+      return (
+        <TextAnswer
+          questionId={question.id}
+          answer={answer as string | null}
+          onAnswer={(id, ans) => onAnswer(id, ans)}
+          disabled={disabled}
+          showResult={showResult}
+          correctAnswer={correctAnswer as string}
         />
       );
 

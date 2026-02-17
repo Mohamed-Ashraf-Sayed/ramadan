@@ -12,6 +12,7 @@ const questionTypeOptions = [
   { value: "TRUE_FALSE", label: "صح أو خطأ" },
   { value: "ORDERING", label: "ترتيب" },
   { value: "IMAGE_TEXT", label: "صورة/فيديو + إجابة نصية" },
+  { value: "TEXT", label: "إجابة نصية (كلمات مفتاحية)" },
 ];
 
 export default function EditQuizPage() {
@@ -114,8 +115,13 @@ export default function EditQuizPage() {
   }
 
   async function addQuestion() {
-    if (!newQuestion.text.trim() && newQuestion.type !== "IMAGE_TEXT") {
+    if (!newQuestion.text.trim() && newQuestion.type !== "IMAGE_TEXT" && newQuestion.type !== "TEXT") {
       toast("يرجى إدخال نص السؤال", "warning");
+      return;
+    }
+
+    if (newQuestion.type === "TEXT" && !newQuestion.correctAnswer.trim()) {
+      toast("يرجى إدخال الكلمات المفتاحية", "warning");
       return;
     }
 
@@ -368,7 +374,7 @@ export default function EditQuizPage() {
             {/* Question text - optional for IMAGE_TEXT */}
             <Textarea
               label={newQuestion.type === "IMAGE_TEXT" ? "نص السؤال (اختياري)" : "نص السؤال"}
-              placeholder={newQuestion.type === "IMAGE_TEXT" ? "مثال: ما اسم هذا المكان؟" : "اكتب السؤال هنا..."}
+              placeholder={newQuestion.type === "TEXT" ? "مثال: اذكر أركان الإسلام" : newQuestion.type === "IMAGE_TEXT" ? "مثال: ما اسم هذا المكان؟" : "اكتب السؤال هنا..."}
               value={newQuestion.text}
               onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
               rows={2}
@@ -550,6 +556,22 @@ export default function EditQuizPage() {
               </div>
             )}
 
+            {/* TEXT keyword answer */}
+            {newQuestion.type === "TEXT" && (
+              <div className="space-y-2">
+                <Textarea
+                  label="الكلمات المفتاحية (مفصولة بفاصلة)"
+                  placeholder="مثال: محمد, رسول, الله, خاتم, الأنبياء"
+                  value={newQuestion.correctAnswer}
+                  onChange={(e) => setNewQuestion({ ...newQuestion, correctAnswer: e.target.value })}
+                  rows={2}
+                />
+                <p className="text-xs text-white/40">
+                  أدخل الكلمات المفتاحية مفصولة بفاصلة - التقييم بنسبة الكلمات المتطابقة مع إجابة المشارك
+                </p>
+              </div>
+            )}
+
             <Input type="number" label="النقاط" value={newQuestion.points} onChange={(e) => setNewQuestion({ ...newQuestion, points: parseInt(e.target.value) || 1 })} min={1} />
           </CardContent>
           <CardFooter className="flex justify-end gap-3">
@@ -573,6 +595,7 @@ export default function EditQuizPage() {
                       {question.type === "TRUE_FALSE" && "صح/خطأ"}
                       {question.type === "ORDERING" && "ترتيب"}
                       {question.type === "IMAGE_TEXT" && "صورة + نص"}
+                      {question.type === "TEXT" && "نصي"}
                     </span>
                     <span className="text-xs text-ramadan-orange">{question.points} {question.points === 1 ? "نقطة" : "نقاط"}</span>
                   </div>

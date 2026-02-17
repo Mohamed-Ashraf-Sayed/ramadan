@@ -53,6 +53,7 @@ enum QuestionType {
   TRUE_FALSE
   ORDERING
   IMAGE_TEXT
+  TEXT
 }
 
 model DrawWinner {

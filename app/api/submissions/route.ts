@@ -218,6 +218,26 @@ export async function POST(request: NextRequest) {
           if (parsedUser === parsedCorrect) {
             score += question.points;
           }
+        } else if (question.type === "TEXT") {
+          // For text - proportional keyword matching
+          const keywords = String(correctAnswer)
+            .split(",")
+            .map(k => k.trim())
+            .filter(k => k.length > 0);
+          if (keywords.length > 0) {
+            const userWords = String(userAnswer)
+              .split(/[\s,،]+/)
+              .map(w => w.trim())
+              .filter(w => w.length > 0);
+            let matched = 0;
+            for (const keyword of keywords) {
+              if (userWords.some(word => fuzzyMatch(word, keyword))) {
+                matched++;
+              }
+            }
+            const ratio = matched / keywords.length;
+            score += Math.round(question.points * ratio);
+          }
         } else if (question.type === "IMAGE_TEXT") {
           // For image+text - fuzzy string matching
           if (fuzzyMatch(String(userAnswer), String(correctAnswer))) {
