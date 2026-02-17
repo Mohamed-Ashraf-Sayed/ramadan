@@ -201,6 +201,17 @@ function QuizDrawTab() {
               });
               if (res.ok) {
                 toast("تم حفظ الفائز بنجاح", "success");
+                // Stop the quiz automatically
+                try {
+                  await fetch(`/api/quizzes/${selectedQuiz}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "stop" }),
+                  });
+                  toast("تم إيقاف المسابقة تلقائياً", "success");
+                } catch {
+                  // Quiz stop failed but winner was saved
+                }
               } else {
                 const data = await res.json().catch(() => ({}));
                 toast(data.error || "حدث خطأ أثناء حفظ الفائز", "error");
@@ -220,9 +231,11 @@ function QuizDrawTab() {
 // Weekly Draw Tab - uses saved draw winners from API
 // =====================================================
 function WeeklyDrawTab() {
+  const { toast } = useToast();
   const [fromDate, setFromDate] = useState(() => formatDateStr(new Date()));
   const [toDate, setToDate] = useState(() => formatDateStr(new Date()));
   const [winners, setWinners] = useState<SavedDrawWinner[]>([]);
+  const [savedWeeklyWinners, setSavedWeeklyWinners] = useState<SavedDrawWinner[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
 
@@ -230,10 +243,19 @@ function WeeklyDrawTab() {
     if (!fromDate || !toDate) return;
     setLoading(true);
     setFetched(true);
-    fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setWinners)
-      .catch(() => setWinners([]))
+    // Fetch quiz draw winners (candidates for weekly draw)
+    const quizWinnersPromise = fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}&drawType=quiz`)
+      .then((r) => (r.ok ? r.json() : []));
+    // Fetch already saved weekly draw winners
+    const weeklyWinnersPromise = fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}&drawType=weekly`)
+      .then((r) => (r.ok ? r.json() : []));
+
+    Promise.all([quizWinnersPromise, weeklyWinnersPromise])
+      .then(([quizW, weeklyW]) => {
+        setWinners(quizW);
+        setSavedWeeklyWinners(weeklyW);
+      })
+      .catch(() => { setWinners([]); setSavedWeeklyWinners([]); })
       .finally(() => setLoading(false));
   }
 
@@ -372,7 +394,93 @@ function WeeklyDrawTab() {
           <DrawMachine
             candidates={drawCandidates}
             title={`السحب الأسبوعي بين ${drawCandidates.length} فائز`}
+            showConfirmButton
+            onWinnerConfirmed={async (winner) => {
+              // Find the original winner record to get the quizId
+              const originalWinner = winners.find(
+                (w) => w.name === winner.name && w.phone === (winner.phone || null)
+              );
+              if (!originalWinner) {
+                toast("حدث خطأ - لم يتم العثور على بيانات الفائز", "error");
+                return;
+              }
+              try {
+                const res = await fetch("/api/draw-winners", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    quizId: originalWinner.quizId,
+                    name: winner.name,
+                    phone: winner.phone || null,
+                    score: winner.score,
+                    totalPoints: winner.totalPoints,
+                    percentage: winner.percentage,
+                    drawType: "weekly",
+                  }),
+                });
+                if (res.ok) {
+                  toast("تم حفظ فائز السحب الأسبوعي بنجاح", "success");
+                  // Refresh weekly winners
+                  fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}&drawType=weekly`)
+                    .then((r) => (r.ok ? r.json() : []))
+                    .then(setSavedWeeklyWinners)
+                    .catch(() => {});
+                } else {
+                  const data = await res.json().catch(() => ({}));
+                  toast(data.error || "حدث خطأ أثناء حفظ الفائز", "error");
+                }
+              } catch (err) {
+                console.error("Failed to save weekly draw winner:", err);
+                toast("حدث خطأ أثناء حفظ الفائز", "error");
+              }
+            }}
           />
+
+          {/* Saved Weekly Winners */}
+          {savedWeeklyWinners.length > 0 && (
+            <div className="bg-gradient-to-br from-ramadan-gold/10 to-transparent border border-ramadan-gold/30 rounded-xl overflow-hidden">
+              <div className="p-4 border-b border-ramadan-gold/20">
+                <h3 className="text-lg font-bold text-ramadan-gold flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                  فائزين السحب الأسبوعي المحفوظين
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-ramadan-gold/10">
+                      <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">الجوال</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">الاختبار الأصلي</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {savedWeeklyWinners.map((w) => {
+                      const d = new Date(w.createdAt);
+                      const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+                      return (
+                        <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
+                          <td className="p-3 text-ramadan-gold font-bold">{w.name}</td>
+                          <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
+                          <td className="p-3 text-white/60 text-sm">{w.quiz.title}</td>
+                          <td className="p-3">
+                            <span className="inline-block px-3 py-1 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-sm font-bold">
+                              {Math.round(w.percentage)}%
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -101,6 +101,18 @@ body {
   );
 }
 
+/* Hero banner horizontal gradient - matching the design image */
+.hero-banner-gradient {
+  background: linear-gradient(135deg,
+    #f5e6d8 0%,
+    #f0ece6 15%,
+    #eaeff4 35%,
+    #e4edf5 50%,
+    #dfe8f2 70%,
+    #d8e4f0 100%
+  );
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

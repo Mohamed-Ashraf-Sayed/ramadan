@@ -27,7 +27,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={inputId}
           className={`
             w-full px-4 py-3 rounded-lg border-2 transition-all duration-200
-            bg-white text-foreground placeholder-gray-400
+            bg-white text-gray-900 placeholder-gray-400
             focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white resize-y min-h-[100px]
             ${
               error

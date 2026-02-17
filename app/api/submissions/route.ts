@@ -136,11 +136,25 @@ export async function POST(request: NextRequest) {
     let score = 0;
     let totalPoints = 0;
 
+    console.log("=== SCORING DEBUG ===");
+    console.log("answers keys:", Object.keys(answers));
+    console.log("questions ids:", quiz.questions.map(q => q.id));
+
     for (const question of quiz.questions) {
       totalPoints += question.points;
       const userAnswer = answers[question.id];
       // Parse the correct answer from JSON
       const correctAnswer = parseJsonField(question.correctAnswer);
+
+      console.log(`Q${question.id} (${question.type}):`, {
+        rawCorrectAnswer: question.correctAnswer,
+        parsedCorrectAnswer: correctAnswer,
+        correctType: typeof correctAnswer,
+        userAnswer,
+        userType: typeof userAnswer,
+        keyLookup: `answers[${question.id}] = ${JSON.stringify(answers[question.id])}`,
+        stringKeyLookup: `answers["${question.id}"] = ${JSON.stringify(answers[String(question.id)])}`,
+      });
 
       if (userAnswer !== undefined) {
         // Compare answers based on type
@@ -174,6 +188,8 @@ export async function POST(request: NextRequest) {
         }
       }
     }
+
+    console.log(`=== FINAL SCORE: ${score}/${totalPoints} ===`);
 
     const percentage = totalPoints > 0 ? (score / totalPoints) * 100 : 0;
 

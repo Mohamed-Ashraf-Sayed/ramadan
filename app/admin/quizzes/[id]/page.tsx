@@ -293,13 +293,14 @@ export default function EditQuizPage() {
             <div className="flex gap-3">
               {!quiz.isActive ? (
                 <Button
+                  variant="ghost"
                   onClick={async () => {
                     const ok = await confirm({ title: "بدء المسابقة", message: "هل أنت متأكد من بدء المسابقة؟ سيتم احتساب الوقت من الآن.", confirmText: "بدء" });
                     if (!ok) return;
                     await updateQuiz({ action: "start" } as unknown as Partial<Quiz>);
                     toast("تم بدء المسابقة", "success");
                   }}
-                  className="!bg-success/20 !text-success !border-success/30 hover:!bg-success/30"
+                  className="!bg-success/20 !text-success border !border-success/30 hover:!bg-success/30"
                 >
                   <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -315,7 +316,8 @@ export default function EditQuizPage() {
                     await updateQuiz({ action: "stop" } as unknown as Partial<Quiz>);
                     toast("تم إيقاف المسابقة", "success");
                   }}
-                  className="!bg-error/20 !text-error !border-error/30 hover:!bg-error/30"
+                  variant="ghost"
+                  className="!bg-error/20 !text-error border !border-error/30 hover:!bg-error/30"
                 >
                   <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

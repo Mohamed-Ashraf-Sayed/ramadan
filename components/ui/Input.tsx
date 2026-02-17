@@ -34,7 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             className={`
               w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 ease-out
-              bg-white text-foreground placeholder-gray-400
+              bg-white text-gray-900 placeholder-gray-400
               focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white
               hover:border-ramadan-gold/50
               ${icon ? "pr-12" : ""}

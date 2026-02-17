@@ -14,183 +14,36 @@ export default async function Home() {
       <Header />
       <main className="min-h-screen bg-ramadan-navy">
 
-        {/* ===== HERO SECTION ===== */}
-        <section className="relative min-h-screen flex items-center overflow-hidden ramadan-sky">
-          {/* Stars Background */}
-          <div className="absolute inset-0">
-            {/* Stars */}
-            {[...Array(50)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-1 h-1 bg-ramadan-gold/30 rounded-full animate-twinkle"
-                style={{
-                  top: `${Math.random() * 60}%`,
-                  left: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 3}s`,
-                  opacity: Math.random() * 0.5 + 0.3,
-                }}
-              />
-            ))}
-            {/* Larger stars */}
-            {[...Array(15)].map((_, i) => (
-              <div
-                key={`large-${i}`}
-                className="absolute w-2 h-2 bg-ramadan-gold/40 rounded-full animate-twinkle"
-                style={{
-                  top: `${Math.random() * 50}%`,
-                  left: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 2}s`,
-                }}
-              />
-            ))}
-          </div>
+        {/* ===== HERO BANNER ===== */}
+        <section className="relative w-full">
+          <img
+            src="/hero-banner.png"
+            alt="سنا الرمضانية - اشراقات تجمع الأسرة"
+            className="w-full h-auto object-cover"
+          />
+        </section>
 
-          {/* Crescent Moon */}
-          <div className="absolute top-20 left-1/4 animate-glow">
-            <svg className="w-32 h-32 md:w-48 md:h-48 text-ramadan-gold" viewBox="0 0 100 100" fill="currentColor">
-              <path d="M50 5 C25 5 5 30 5 55 C5 80 25 95 50 95 C30 85 20 70 20 50 C20 30 35 12 50 5 Z" />
-              {/* Star next to moon */}
-              <path d="M75 20 L78 28 L87 28 L80 34 L83 42 L75 36 L67 42 L70 34 L63 28 L72 28 Z" />
-            </svg>
-          </div>
-
-          {/* Hanging Lanterns */}
-          <div className="absolute top-0 left-[10%] animate-lantern" style={{ animationDelay: '0s' }}>
-            <svg className="w-16 h-32 md:w-20 md:h-40 lantern-glow" viewBox="0 0 60 120" fill="none">
-              {/* Chain */}
-              <path d="M30 0 L30 20" stroke="#2e7dba" strokeWidth="2"/>
-              {/* Top cap */}
-              <path d="M20 20 L40 20 L38 25 L22 25 Z" fill="#2e7dba"/>
-              {/* Lantern body */}
-              <path d="M22 25 L22 85 Q22 95 30 95 Q38 95 38 85 L38 25 Z" fill="#2e7dba" fillOpacity="0.3" stroke="#2e7dba" strokeWidth="2"/>
-              {/* Decorative lines */}
-              <path d="M26 30 L26 90 M30 30 L30 90 M34 30 L34 90" stroke="#2e7dba" strokeWidth="1" strokeOpacity="0.5"/>
-              {/* Inner glow */}
-              <ellipse cx="30" cy="60" rx="8" ry="25" fill="#5ba3d9" fillOpacity="0.6"/>
-              {/* Bottom */}
-              <path d="M25 95 L35 95 L32 105 L28 105 Z" fill="#2e7dba"/>
-            </svg>
-          </div>
-
-          <div className="absolute top-0 right-[10%] animate-lantern" style={{ animationDelay: '1s' }}>
-            <svg className="w-16 h-32 md:w-20 md:h-40 lantern-glow" viewBox="0 0 60 120" fill="none">
-              <path d="M30 0 L30 15" stroke="#2e7dba" strokeWidth="2"/>
-              <path d="M18 15 L42 15 L40 22 L20 22 Z" fill="#2e7dba"/>
-              <path d="M20 22 L20 80 Q20 92 30 92 Q40 92 40 80 L40 22 Z" fill="#5ba3d9" fillOpacity="0.2" stroke="#2e7dba" strokeWidth="2"/>
-              <path d="M25 28 L25 85 M30 28 L30 85 M35 28 L35 85" stroke="#2e7dba" strokeWidth="1" strokeOpacity="0.5"/>
-              <ellipse cx="30" cy="55" rx="10" ry="20" fill="#5ba3d9" fillOpacity="0.5"/>
-              <path d="M24 92 L36 92 L33 102 L27 102 Z" fill="#2e7dba"/>
-            </svg>
-          </div>
-
-          <div className="absolute top-0 left-[30%] animate-lantern hidden md:block" style={{ animationDelay: '0.5s' }}>
-            <svg className="w-14 h-28 lantern-glow" viewBox="0 0 60 120" fill="none">
-              <path d="M30 0 L30 25" stroke="#2e7dba" strokeWidth="2"/>
-              <ellipse cx="30" cy="28" rx="12" ry="4" fill="#2e7dba"/>
-              <path d="M18 28 L18 88 Q18 100 30 100 Q42 100 42 88 L42 28 Z" fill="#2e7dba" fillOpacity="0.25" stroke="#2e7dba" strokeWidth="2"/>
-              <ellipse cx="30" cy="60" rx="6" ry="18" fill="#5ba3d9" fillOpacity="0.6"/>
-              <circle cx="30" cy="108" r="4" fill="#2e7dba"/>
-            </svg>
-          </div>
-
-          <div className="absolute top-0 right-[30%] animate-lantern hidden md:block" style={{ animationDelay: '1.5s' }}>
-            <svg className="w-14 h-28 lantern-glow" viewBox="0 0 60 120" fill="none">
-              <path d="M30 0 L30 20" stroke="#2e7dba" strokeWidth="2"/>
-              <path d="M22 20 L38 20 L36 26 L24 26 Z" fill="#2e7dba"/>
-              <path d="M24 26 L24 90 Q24 98 30 98 Q36 98 36 90 L36 26 Z" fill="#5ba3d9" fillOpacity="0.2" stroke="#2e7dba" strokeWidth="2"/>
-              <ellipse cx="30" cy="58" rx="5" ry="16" fill="#5ba3d9" fillOpacity="0.5"/>
-              <path d="M27 98 L33 98 L31 106 L29 106 Z" fill="#2e7dba"/>
-            </svg>
-          </div>
-
-          {/* Mosque Silhouette at Bottom */}
-          <div className="absolute bottom-0 left-0 right-0">
-            <svg className="w-full h-48 md:h-64" viewBox="0 0 1200 200" preserveAspectRatio="xMidYMax slice" fill="#d0dbe6">
-              {/* Main mosque with domes and minarets */}
-              <path d="M0 200 L0 180 L100 180 L100 140 L110 140 L115 100 L120 80 L125 100 L130 140 L140 140 L140 180
-                       L200 180 L200 120 L220 120 Q250 60 280 120 L300 120 L300 180
-                       L350 180 L350 140 L360 140 L365 100 L370 80 L375 100 L380 140 L390 140 L390 180
-                       L500 180 L500 100 L530 100 Q580 30 630 100 L660 100 L660 180
-                       L750 180 L750 140 L760 140 L765 100 L770 70 L775 100 L780 140 L790 140 L790 180
-                       L900 180 L900 120 L920 120 Q950 60 980 120 L1000 120 L1000 180
-                       L1060 180 L1060 140 L1070 140 L1075 100 L1080 80 L1085 100 L1090 140 L1100 140 L1100 180
-                       L1200 180 L1200 200 Z" />
-              {/* Crescent decorations on top of domes */}
-              <circle cx="250" cy="55" r="8" fill="#2e7dba"/>
-              <circle cx="580" cy="25" r="10" fill="#2e7dba"/>
-              <circle cx="950" cy="55" r="8" fill="#2e7dba"/>
-            </svg>
-          </div>
-
-          {/* Main Content */}
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-20">
-            <div className="text-center">
-              {/* Decorative top element */}
-              <div className="flex justify-center mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-px bg-gradient-to-r from-transparent to-ramadan-gold"></div>
-                  <svg className="w-8 h-8 text-ramadan-gold animate-pulse" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+        {/* ===== CTA SECTION BELOW HERO ===== */}
+        <section className="bg-ramadan-navy py-10 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-lg md:text-xl mb-8 text-gray-600 leading-relaxed">
+              مسابقة تنافسية ثقافية متنوعة في مجالات متعددة مختارة من صنوف العلوم والمعارف لكل أفراد الأسرة
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/quiz">
+                <Button size="lg" className="bg-ramadan-gold text-white hover:bg-ramadan-gold-light text-lg px-10 py-6 shadow-2xl shadow-ramadan-gold/30 w-full sm:w-auto font-bold">
+                  ابدأ المسابقة الآن
+                  <svg className="w-5 h-5 mr-2 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
-                  <div className="w-16 h-px bg-gradient-to-l from-transparent to-ramadan-gold"></div>
-                </div>
-              </div>
-
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-ramadan-gold/10 border border-ramadan-gold/30 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
-                <span className="w-2 h-2 bg-ramadan-gold rounded-full animate-pulse"></span>
-                <span className="text-ramadan-gold text-sm font-medium">اشراقات تجمع الأسرة</span>
-              </div>
-
-              {/* Main Title */}
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold mb-6 text-gold-gradient">
-                سَــنَــا
-              </h1>
-
-              <p className="text-2xl md:text-3xl mb-4 text-ramadan-gold tracking-widest">
-                الرمضانية
-              </p>
-
-              {/* Ramadan Greeting */}
-              <div className="flex justify-center items-center gap-4 mb-8">
-                <svg className="w-6 h-6 text-ramadan-gold" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 3C7.03 3 3 7.03 3 12S7.03 21 12 21C9.5 19 8 16 8 12S9.5 5 12 3Z"/>
-                </svg>
-                <p className="text-xl md:text-2xl text-gray-800">رمضان كريم</p>
-                <svg className="w-6 h-6 text-ramadan-gold" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-              </div>
-
-              <p className="text-lg md:text-xl mb-10 text-gray-600 leading-relaxed max-w-2xl mx-auto">
-                مسابقة تنافسية ثقافية متنوعة في مجالات متعددة مختارة من صنوف العلوم والمعارف لكل أفراد الأسرة
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <Link href="/quiz">
-                  <Button size="lg" className="bg-ramadan-gold text-ramadan-dark hover:bg-ramadan-gold-light text-lg px-10 py-6 shadow-2xl shadow-ramadan-gold/30 w-full sm:w-auto font-bold">
-                    ابدأ المسابقة الآن
-                    <svg className="w-5 h-5 mr-2 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </Button>
-                </Link>
-                <Link href="/quiz">
-                  <Button variant="outline" size="lg" className="border-2 border-ramadan-gold/50 text-ramadan-gold hover:bg-ramadan-gold/10 text-lg px-10 py-6 w-full sm:w-auto">
-                    تصفح المسابقات
-                  </Button>
-                </Link>
-              </div>
-
+                </Button>
+              </Link>
+              <Link href="/quiz">
+                <Button variant="outline" size="lg" className="border-2 border-ramadan-gold/50 text-ramadan-gold hover:bg-ramadan-gold/10 text-lg px-10 py-6 w-full sm:w-auto">
+                  تصفح المسابقات
+                </Button>
+              </Link>
             </div>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 text-ramadan-gold/60 animate-bounce">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
           </div>
         </section>
 
@@ -245,7 +98,7 @@ export default async function Home() {
               {/* Stats Card */}
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-br from-ramadan-gold/20 to-transparent rounded-3xl blur-xl"></div>
-                <div className="relative bg-gradient-to-br from-ramadan-navy to-ramadan-dark rounded-3xl p-8 border border-ramadan-gold/20">
+                <div className="relative bg-white rounded-3xl p-8 border border-gray-200 shadow-xl">
                   {/* Lantern decoration */}
                   <div className="absolute -top-12 left-1/2 -translate-x-1/2">
                     <svg className="w-12 h-24 lantern-glow" viewBox="0 0 40 80" fill="none">
@@ -263,9 +116,9 @@ export default async function Home() {
                       { number: quizCount.toLocaleString("ar-EG"), label: "مسابقة" },
                       { number: questionCount.toLocaleString("ar-EG"), label: "سؤال" },
                     ].map((stat, i) => (
-                      <div key={i} className="bg-ramadan-gold/10 rounded-2xl p-6 text-center border border-ramadan-gold/20">
-                        <p className="text-3xl font-bold text-ramadan-gold mb-2">{stat.number}</p>
-                        <p className="text-sm text-gray-600">{stat.label}</p>
+                      <div key={i} className="bg-[#eef4fa] rounded-2xl p-6 text-center border border-[#d0dbe6]">
+                        <p className="text-3xl font-bold text-[#1a5c94] mb-2">{stat.number}</p>
+                        <p className="text-sm text-gray-600 font-medium">{stat.label}</p>
                       </div>
                     ))}
                   </div>

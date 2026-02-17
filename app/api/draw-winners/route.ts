@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/draw-winners - Get draw winners (optionally filtered by date range)
+// GET /api/draw-winners - Get draw winners (optionally filtered by date range and type)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const fromDate = searchParams.get("fromDate");
     const toDate = searchParams.get("toDate");
+    const drawType = searchParams.get("drawType");
 
     const where: Record<string, unknown> = {};
+    if (drawType) where.drawType = drawType;
     if (fromDate || toDate) {
       where.createdAt = {
         ...(fromDate ? { gte: new Date(fromDate) } : {}),
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { quizId, name, phone, score, totalPoints, percentage } = body;
+    const { quizId, name, phone, score, totalPoints, percentage, drawType } = body;
 
     if (!quizId || !name) {
       return NextResponse.json(
@@ -60,6 +62,7 @@ export async function POST(request: NextRequest) {
         score: score || 0,
         totalPoints: totalPoints || 0,
         percentage: percentage || 0,
+        drawType: drawType || "quiz",
       },
       include: {
         quiz: {

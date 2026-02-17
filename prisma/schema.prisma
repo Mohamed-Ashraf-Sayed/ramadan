@@ -64,10 +64,12 @@ model DrawWinner {
   score     Int
   totalPoints Int
   percentage  Float
+  drawType  String   @default("quiz") // "quiz" or "weekly"
   createdAt DateTime @default(now())
 
   @@index([quizId])
   @@index([createdAt])
+  @@index([drawType])
 }
 
 model Submission {
