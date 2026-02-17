@@ -5,7 +5,7 @@ import { Button, Select, Input, useToast } from "@/components/ui";
 import DrawMachine from "@/components/admin/DrawMachine";
 import type { Quiz, Submission } from "@/types";
 
-type Tab = "quiz" | "weekly";
+type Tab = "quiz" | "weekly" | "winners";
 
 // Arabic day names
 const DAY_NAMES = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
@@ -69,10 +69,25 @@ export default function DrawPage() {
             السحب الأسبوعي
           </span>
         </button>
+        <button
+          onClick={() => setActiveTab("winners")}
+          className={`flex-1 py-3 px-4 rounded-lg font-bold text-sm transition-all duration-200 ${
+            activeTab === "winners"
+              ? "bg-ramadan-gold text-ramadan-dark shadow-lg"
+              : "text-white/60 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <span className="flex items-center justify-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            قائمة الفائزين
+          </span>
+        </button>
       </div>
 
       {/* Tab Content */}
-      {activeTab === "quiz" ? <QuizDrawTab /> : <WeeklyDrawTab />}
+      {activeTab === "quiz" ? <QuizDrawTab /> : activeTab === "weekly" ? <WeeklyDrawTab /> : <WinnersListTab />}
     </div>
   );
 }
@@ -85,6 +100,7 @@ function QuizDrawTab() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<string>("");
   const [submissions, setSubmissions] = useState<(Submission & { quiz: Quiz })[]>([]);
+  const [savedWinners, setSavedWinners] = useState<SavedDrawWinner[]>([]);
   const [loading, setLoading] = useState(false);
 
   const topScorers = useMemo(() => {
@@ -108,6 +124,13 @@ function QuizDrawTab() {
       .catch(() => {});
   }, []);
 
+  function fetchSavedWinners(quizId: string) {
+    fetch(`/api/draw-winners?drawType=quiz`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((all: SavedDrawWinner[]) => setSavedWinners(all.filter((w) => w.quizId === parseInt(quizId))))
+      .catch(() => setSavedWinners([]));
+  }
+
   useEffect(() => {
     if (!selectedQuiz) return;
     setLoading(true);
@@ -116,6 +139,7 @@ function QuizDrawTab() {
       .then(setSubmissions)
       .catch(() => setSubmissions([]))
       .finally(() => setLoading(false));
+    fetchSavedWinners(selectedQuiz);
   }, [selectedQuiz]);
 
   return (
@@ -179,6 +203,48 @@ function QuizDrawTab() {
         </div>
       )}
 
+      {/* Saved Winners */}
+      {savedWinners.length > 0 && (
+        <div className="bg-gradient-to-br from-ramadan-gold/10 to-transparent border border-ramadan-gold/30 rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-ramadan-gold/20">
+            <h3 className="text-lg font-bold text-ramadan-gold flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+              الفائزين المحفوظين
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-ramadan-gold/10">
+                  <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
+                  <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
+                  <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
+                </tr>
+              </thead>
+              <tbody>
+                {savedWinners.map((w) => {
+                  const d = new Date(w.createdAt);
+                  const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+                  return (
+                    <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
+                      <td className="p-3 text-ramadan-gold font-bold">{w.name}</td>
+                      <td className="p-3">
+                        <span className="inline-block px-3 py-1 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-sm font-bold">
+                          {Math.round(w.percentage)}%
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Draw Machine */}
       {selectedQuiz && !loading && submissions.length > 0 && (
         <DrawMachine
@@ -201,6 +267,7 @@ function QuizDrawTab() {
               });
               if (res.ok) {
                 toast("تم حفظ الفائز بنجاح", "success");
+                fetchSavedWinners(selectedQuiz);
                 // Stop the quiz automatically
                 try {
                   await fetch(`/api/quizzes/${selectedQuiz}`, {
@@ -482,6 +549,166 @@ function WeeklyDrawTab() {
             </div>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+// =====================================================
+// Winners List Tab - shows all saved winners
+// =====================================================
+interface DrawWinnerWithType extends SavedDrawWinner {
+  drawType: string;
+}
+
+function WinnersListTab() {
+  const [allWinners, setAllWinners] = useState<DrawWinnerWithType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/draw-winners?drawType=quiz").then((r) => r.ok ? r.json() : []),
+      fetch("/api/draw-winners?drawType=weekly").then((r) => r.ok ? r.json() : []),
+    ])
+      .then(([quiz, weekly]) => {
+        const quizWithType = quiz.map((w: SavedDrawWinner) => ({ ...w, drawType: "quiz" }));
+        const weeklyWithType = weekly.map((w: SavedDrawWinner) => ({ ...w, drawType: "weekly" }));
+        setAllWinners([...quizWithType, ...weeklyWithType]);
+      })
+      .catch(() => setAllWinners([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Group quiz winners by quiz
+  const quizWinnersGrouped = useMemo(() => {
+    const quizWinners = allWinners.filter((w) => w.drawType === "quiz");
+    const grouped: Record<number, { title: string; winners: DrawWinnerWithType[] }> = {};
+    for (const w of quizWinners) {
+      if (!grouped[w.quizId]) {
+        grouped[w.quizId] = { title: w.quiz.title, winners: [] };
+      }
+      grouped[w.quizId].winners.push(w);
+    }
+    return grouped;
+  }, [allWinners]);
+
+  const weeklyWinners = useMemo(() => allWinners.filter((w) => w.drawType === "weekly"), [allWinners]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-12 h-12 border-4 border-ramadan-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (allWinners.length === 0) {
+    return (
+      <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
+        <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
+          <svg className="w-10 h-10 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p className="text-white/40 text-lg">لا يوجد فائزين محفوظين بعد</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Quiz Winners - grouped by quiz */}
+      {Object.keys(quizWinnersGrouped).length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-ramadan-gold flex items-center gap-2">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            فائزين سحب الاختبارات
+          </h2>
+          {Object.entries(quizWinnersGrouped).map(([quizId, group]) => (
+            <div key={quizId} className="bg-ramadan-purple/30 border border-ramadan-gold/20 rounded-xl overflow-hidden">
+              <div className="p-4 border-b border-ramadan-gold/10 flex items-center justify-between">
+                <h3 className="font-bold text-white">{group.title}</h3>
+                <span className="text-xs bg-ramadan-gold/20 text-ramadan-gold px-3 py-1 rounded-full font-bold">
+                  {group.winners.length} فائز
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.winners.map((w) => {
+                      const d = new Date(w.createdAt);
+                      const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+                      return (
+                        <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
+                          <td className="p-3 text-white font-medium">{w.name}</td>
+                          <td className="p-3">
+                            <span className="inline-block px-3 py-1 bg-success/20 text-success rounded-full text-sm font-bold">
+                              {Math.round(w.percentage)}%
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Weekly Winners */}
+      {weeklyWinners.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-ramadan-gold flex items-center gap-2">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            فائزين السحب الأسبوعي
+          </h2>
+          <div className="bg-gradient-to-br from-ramadan-gold/10 to-transparent border border-ramadan-gold/30 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-ramadan-gold/10">
+                    <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
+                    <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
+                    <th className="text-right text-white/60 text-sm font-medium p-3">الاختبار</th>
+                    <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {weeklyWinners.map((w) => {
+                    const d = new Date(w.createdAt);
+                    const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+                    return (
+                      <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
+                        <td className="p-3 text-ramadan-gold font-bold">{w.name}</td>
+                        <td className="p-3 text-white/60 text-sm">{w.quiz.title}</td>
+                        <td className="p-3">
+                          <span className="inline-block px-3 py-1 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-sm font-bold">
+                            {Math.round(w.percentage)}%
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
