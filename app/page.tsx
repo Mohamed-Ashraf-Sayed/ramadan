@@ -27,7 +27,7 @@ export default async function Home() {
         <section className="bg-ramadan-navy py-10 px-4">
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-lg md:text-xl mb-8 text-gray-600 leading-relaxed">
-              مسابقة تنافسية ثقافية متنوعة في مجالات متعددة مختارة من صنوف العلوم والمعارف لكل أفراد الأسرة
+              رحلة في بحور المعرفة بمختلف العلوم والمعارف، تهدف لإثراء الثقافة والمتعة التنافسية بين أفراد الأسرة
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/quiz">
@@ -75,17 +75,18 @@ export default async function Home() {
                   سنا الرمضانية
                 </h2>
                 <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                  نقدم لكم منصة سنا الرمضانية للمسابقات الثقافية، حيث نجمع بين المتعة والفائدة في تجربة تعليمية فريدة - اشراقات تجمع الأسرة.
+                  رحلة في بحور المعرفة بمختلف العلوم والمعارف، تهدف لإثراء الثقافة والمتعة التنافسية بين أفراد الأسرة - اشراقات تجمع الأسرة.
                 </p>
                 <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                  في هذا الشهر الفضيل، نتشارك معكم روحانية رمضان من خلال مسابقات متنوعة تناسب جميع الأعمار.
+                  تبدأ المسابقة يومياً من بعد صلاة المغرب مباشرة لمدة ٥ ساعات.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   {[
-                    { text: " تفاعليه", icon: "✓" },
-                    { text: "لجميع الأعمار", icon: "✓" },
+                    { text: "تفاعلية", icon: "✓" },
+                    { text: "لجميع أفراد الأسرة", icon: "✓" },
                     { text: "نتائج فورية", icon: "✓" },
-                    { text: "سحب علي جوائز يوميه واسبوعيه", icon: "✓" },
+                    { text: "3 فائزين يومياً (300 ريال)", icon: "✓" },
+                    { text: "iPad + جوال أسبوعياً", icon: "✓" },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-2 bg-ramadan-gold/10 border border-ramadan-gold/20 px-4 py-2 rounded-lg">
                       <span className="text-ramadan-gold">{item.icon}</span>
@@ -156,8 +157,8 @@ export default async function Home() {
                 },
                 {
                   icon: "⚡",
-                  title: "جوائز يوميه واسبوعيه",
-                  description: "سحب يومي وسحب كبير نهايه كل اسبوع",
+                  title: "جوائز يومية واسبوعية",
+                  description: "3 فائزين يومياً بقيمة 300 ريال لكل فائز + جهاز iPad وجوال في السحب الأسبوعي",
                 },
                 {
                   icon: "👨‍👩‍👧‍👦",
@@ -176,8 +177,8 @@ export default async function Home() {
                 },
                 {
                   icon: "🕐",
-                  title: "متاح دائماً",
-                  description: "شارك في أي وقت يناسبك على مدار الساعات المحدده",
+                  title: "موعد يومي ثابت",
+                  description: "تبدأ من بعد صلاة المغرب مباشرة لمدة ٥ ساعات",
                 },
               ].map((feature, index) => (
                 <div
@@ -303,6 +304,37 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* ===== IMPORTANT NOTICES ===== */}
+        <section className="py-16 px-4 bg-ramadan-purple">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-br from-ramadan-gold/10 to-ramadan-gold/5 border-2 border-ramadan-gold/30 rounded-3xl p-8 md:p-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-ramadan-gold/20 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-ramadan-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-ramadan-gold">تنبيهات مهمة للفوز</h3>
+              </div>
+              <div className="space-y-4">
+                {[
+                  "المسابقة حصرياً لأفراد الأسرة وزوجات الأبناء فقط.",
+                  "يحق لكل فرد في العائلة التسجيل باسمه، لكن يمنع تكرار الاسم لكي لا يُلغى سحبك!",
+                  "يجب الدقة في تعبئة البيانات للدخول في السحب.",
+                  "بالنسبة لزوجات الأبناء تكتب: حرم / اسم الزوج رباعي.",
+                ].map((notice, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-ramadan-gold/20 flex items-center justify-center mt-0.5">
+                      <span className="text-ramadan-gold text-xs font-bold">{i + 1}</span>
+                    </span>
+                    <p className="text-gray-600 text-lg">{notice}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ===== FAQ SECTION ===== */}
         <section className="py-24 px-4 bg-ramadan-purple">
           <div className="max-w-4xl mx-auto">
@@ -322,10 +354,11 @@ export default async function Home() {
 
             <div className="space-y-4">
               {[
-                { q: "هل المشاركة خاصة؟", a: "نعم، المشاركة خاصة لأفراد الأسرة فقط." },
-                { q: "هل يمكن المشاركة من الهاتف؟", a: "بالتأكيد! المنصة متوافقة مع جميع الأجهزة - هواتف، تابلت، وأجهزة الكمبيوتر." },
-                { q: "ما هي جوائز المسابقة؟", a: "٣ جوائز يوميًا بقيمة (200) ريال لكل فائز، بالإضافة إلى جوائز قيّمة (جوال + ايباد) خلال السحب الأسبوعي الكبير كل أسبوع." },
+                { q: "هل المشاركة خاصة؟", a: "نعم، المسابقة حصرياً لأفراد الأسرة وزوجات الأبناء فقط." },
+                { q: "ما هي جوائز المسابقة؟", a: "3 فائزين يومياً: سحوبات نقدية بقيمة (300) ريال لكل فائز. بالإضافة إلى مفاجآت نهاية الأسبوع: جهاز iPad وجهاز جوال عبر السحب على جميع إجابات المشاركين خلال الأسبوع." },
+                { q: "ما هو موعد المسابقة اليومي؟", a: "تبدأ من بعد صلاة المغرب مباشرة لمدة ٥ ساعات." },
                 { q: "ما هي آلية الدخول في السحب الأسبوعي؟", a: "جميع المشاركين بالإجابات الصحيحة خلال الأسبوع يتم دخولهم ضمن السحب الأسبوعي." },
+                { q: "هل يمكن المشاركة من الهاتف؟", a: "بالتأكيد! المنصة متوافقة مع جميع الأجهزة - هواتف، تابلت، وأجهزة الكمبيوتر." },
               ].map((faq, index) => (
                 <div key={index} className="bg-ramadan-navy/50 border border-ramadan-gold/10 rounded-2xl p-6">
                   <h3 className="text-lg font-bold text-foreground mb-2">{faq.q}</h3>
@@ -362,7 +395,7 @@ export default async function Home() {
                   </div>
                 </div>
                 <p className="text-white/60 leading-relaxed max-w-md">
-                  مسابقة تنافسية ثقافية متنوعة في مجالات متعددة مختارة من صنوف العلوم والمعارف لكل أفراد الأسرة.
+                  رحلة في بحور المعرفة بمختلف العلوم والمعارف، تهدف لإثراء الثقافة والمتعة التنافسية بين أفراد الأسرة.
                 </p>
               </div>
 
