@@ -81,6 +81,7 @@ model Submission {
   name        String
   email       String?
   phone       String?
+  gender      String?
   fingerprint String?
 
   answers     Json

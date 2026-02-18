@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { quizId, name, phone, answers, fingerprint } = body;
+    const { quizId, name, phone, gender, answers, fingerprint } = body;
 
     if (!quizId || !name || !answers) {
       return NextResponse.json(
@@ -264,6 +264,7 @@ export async function POST(request: NextRequest) {
         quizId,
         name,
         phone,
+        gender,
         fingerprint,
         answers,
         score,

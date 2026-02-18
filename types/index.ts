@@ -46,6 +46,7 @@ export interface Submission {
 export interface ParticipantInfo {
   name: string;
   phone?: string;
+  gender?: string;
 }
 
 export interface QuizAnswer {

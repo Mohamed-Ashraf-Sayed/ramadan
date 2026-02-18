@@ -18,7 +18,9 @@ export default function QuizRegistrationPage() {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    gender: "" as "" | "male" | "female",
   });
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [alreadyDone, setAlreadyDone] = useState(false);
 
@@ -76,6 +78,14 @@ export default function QuizRegistrationPage() {
       newErrors.phone = "رقم الجوال مطلوب";
     } else if (!/^[0-9+]{10,15}$/.test(formData.phone.replace(/\s/g, ""))) {
       newErrors.phone = "رقم الجوال غير صالح";
+    }
+
+    if (!formData.gender) {
+      newErrors.gender = "يرجى اختيار الجنس";
+    }
+
+    if (!agreedToTerms) {
+      newErrors.terms = "يجب الموافقة على شروط المشاركة";
     }
 
     setErrors(newErrors);
@@ -214,6 +224,67 @@ export default function QuizRegistrationPage() {
                 }
                 error={errors.phone}
               />
+
+              {/* Gender Selection */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-foreground">الجنس</label>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, gender: "male" })}
+                    className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all border-2 ${
+                      formData.gender === "male"
+                        ? "bg-primary/10 text-primary border-primary"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    ذكر
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, gender: "female" })}
+                    className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all border-2 ${
+                      formData.gender === "female"
+                        ? "bg-primary/10 text-primary border-primary"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    أنثى
+                  </button>
+                </div>
+                {errors.gender && <p className="text-error text-xs mt-1">{errors.gender}</p>}
+              </div>
+
+              {/* Terms & Conditions */}
+              <div className="space-y-3 mt-4">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
+                  <h4 className="font-bold text-amber-800 text-sm">شروط المشاركة :</h4>
+                  <ul className="space-y-1.5 text-sm text-amber-700">
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0"></span>
+                      المسابقة حصرياً لـ أفراد الأسرة وزوجات الأبناء فقط.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0"></span>
+                      يحق لكل فرد في العائلة التسجيل باسمه، لكن يمنع تكرار الاسم لكي لا يُلغى سحبك!
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0"></span>
+                      يجب الدقة في تعبئة البيانات للدخول في السحب.
+                    </li>
+                  </ul>
+                </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm font-medium text-foreground">قرأت جميع شروط المسابقة وأوافق عليها</span>
+                </label>
+                {errors.terms && <p className="text-error text-xs">{errors.terms}</p>}
+              </div>
             </CardContent>
 
             <CardFooter>
