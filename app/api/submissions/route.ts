@@ -222,8 +222,8 @@ export async function POST(request: NextRequest) {
             score += matched > 0 ? Math.max(1, earned) : 0;
           }
         } else {
-          // For multiple choice - direct string comparison
-          if (userAnswer === correctAnswer) {
+          // For multiple choice - compare as strings to handle type mismatches
+          if (String(userAnswer).trim() === String(correctAnswer).trim()) {
             score += question.points;
           }
         }

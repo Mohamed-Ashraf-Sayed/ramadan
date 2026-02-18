@@ -490,12 +490,13 @@ function checkAnswer(userAnswer: unknown, correctAnswer: unknown, type: string):
     return JSON.stringify(userAnswer) === JSON.stringify(correctAnswer);
   }
 
-  if (type === "IMAGE_TEXT") {
+  if (type === "IMAGE_TEXT" || type === "TEXT") {
     return normalizeArabic(String(userAnswer)) === normalizeArabic(String(correctAnswer)) ||
       fuzzyMatch(String(userAnswer), String(correctAnswer));
   }
 
-  return userAnswer === correctAnswer;
+  // Compare as strings to handle type mismatches (e.g. "4" vs 4)
+  return String(userAnswer).trim() === String(correctAnswer).trim();
 }
 
 function normalizeArabic(text: string): string {
