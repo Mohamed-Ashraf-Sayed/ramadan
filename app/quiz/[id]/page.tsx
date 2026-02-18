@@ -206,6 +206,10 @@ export default function QuizRegistrationPage() {
                       <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0"></span>
                       يجب الدقة في تعبئة البيانات للدخول في السحب.
                     </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0"></span>
+                      بالنسبة لزوجات الأبناء تكتب: حرم / اسم الزوج رباعي.
+                    </li>
                   </ul>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
