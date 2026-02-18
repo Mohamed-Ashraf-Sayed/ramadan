@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { quizId, name, phone, gender, answers, fingerprint } = body;
+    const { quizId, name, phone, gender, answers, notes, fingerprint } = body;
 
     if (!quizId || !name || !answers) {
       return NextResponse.json(
@@ -68,46 +68,6 @@ export async function POST(request: NextRequest) {
 
     if (!quiz) {
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
-    }
-
-    // Check for duplicate submission by device cookie
-    const completedCookie = request.cookies.get("completed_quizzes")?.value;
-    if (completedCookie) {
-      try {
-        const completedIds = JSON.parse(completedCookie) as number[];
-        if (completedIds.includes(quizId)) {
-          return NextResponse.json(
-            { error: "لقد شاركت في هذا الاختبار من قبل" },
-            { status: 409 }
-          );
-        }
-      } catch { /* ignore malformed cookie */ }
-    }
-
-    // Check for duplicate submission by fingerprint
-    if (fingerprint) {
-      const existingByFingerprint = await prisma.submission.findFirst({
-        where: { quizId, fingerprint },
-      });
-      if (existingByFingerprint) {
-        return NextResponse.json(
-          { error: "لقد شاركت في هذا الاختبار من قبل" },
-          { status: 409 }
-        );
-      }
-    }
-
-    // Check for duplicate submission by phone number
-    if (phone) {
-      const existing = await prisma.submission.findFirst({
-        where: { quizId, phone },
-      });
-      if (existing) {
-        return NextResponse.json(
-          { error: "لقد شاركت في هذا الاختبار من قبل" },
-          { status: 409 }
-        );
-      }
     }
 
     // Helper function to parse JSON field
@@ -241,9 +201,25 @@ export async function POST(request: NextRequest) {
             score += matched > 0 ? Math.max(1, earned) : 0;
           }
         } else if (question.type === "IMAGE_TEXT") {
-          // For image+text - fuzzy string matching
-          if (fuzzyMatch(String(userAnswer), String(correctAnswer))) {
-            score += question.points;
+          // For image+text - proportional keyword matching (same as TEXT)
+          const keywords = String(correctAnswer)
+            .split(/[,،]/)
+            .map(k => k.trim())
+            .filter(k => k.length > 0);
+          if (keywords.length > 0) {
+            const userWords = String(userAnswer)
+              .split(/[\s,،]+/)
+              .map(w => w.trim())
+              .filter(w => w.length > 0);
+            let matched = 0;
+            for (const keyword of keywords) {
+              if (userWords.some(word => fuzzyMatch(word, keyword))) {
+                matched++;
+              }
+            }
+            const ratio = matched / keywords.length;
+            const earned = Math.round(question.points * ratio);
+            score += matched > 0 ? Math.max(1, earned) : 0;
           }
         } else {
           // For multiple choice - direct string comparison
@@ -267,24 +243,14 @@ export async function POST(request: NextRequest) {
         gender,
         fingerprint,
         answers,
+        notes: notes || null,
         score,
         totalPoints,
         percentage,
       },
     });
 
-    // Set cookie to mark quiz as completed on this device
-    const prevCompleted = completedCookie ? JSON.parse(completedCookie) as number[] : [];
-    prevCompleted.push(quizId);
-    const response = NextResponse.json(submission, { status: 201 });
-    response.cookies.set("completed_quizzes", JSON.stringify(prevCompleted), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 120, // 120 days
-      path: "/",
-    });
-    return response;
+    return NextResponse.json(submission, { status: 201 });
   } catch (error) {
     console.error("Error creating submission:", error);
     return NextResponse.json(

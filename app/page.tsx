@@ -4,11 +4,29 @@ import Header from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
-  const [quizCount, submissionCount, questionCount] = await Promise.all([
+  const [
+    quizCount,
+    submissionCount,
+    maleCount,
+    femaleCount,
+    highestDayResult,
+  ] = await Promise.all([
     prisma.quiz.count(),
     prisma.submission.count(),
-    prisma.question.count(),
+    prisma.submission.count({ where: { gender: "male" } }),
+    prisma.submission.count({ where: { gender: "female" } }),
+    prisma.$queryRaw<{ cnt: bigint }[]>`
+      SELECT COUNT(*) as cnt FROM Submission
+      GROUP BY DATE(createdAt)
+      ORDER BY cnt DESC
+      LIMIT 1
+    `,
   ]);
+
+  const avgPerQuiz = quizCount > 0 ? Math.round(submissionCount / quizCount) : 0;
+  const highestDay = highestDayResult.length > 0 ? Number(highestDayResult[0].cnt) : 0;
+  const malePercent = submissionCount > 0 ? ((maleCount / submissionCount) * 100).toFixed(2) : "0";
+  const femalePercent = submissionCount > 0 ? ((femaleCount / submissionCount) * 100).toFixed(2) : "0";
   return (
     <>
       <Header />
@@ -71,7 +89,7 @@ export default async function Home() {
                   </svg>
                   <span className="text-ramadan-gold text-sm font-medium">من نحن</span>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+                <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight" style={{ color: "#00416f" }}>
                   سنا الرمضانية
                 </h2>
                 <p className="text-lg text-gray-600 mb-6 leading-relaxed">
@@ -111,15 +129,19 @@ export default async function Home() {
                     </svg>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6 mt-8">
+                  <div className="grid grid-cols-2 gap-4 mt-8">
                     {[
-                      { number: submissionCount.toLocaleString("ar-EG"), label: "مشارك" },
-                      { number: quizCount.toLocaleString("ar-EG"), label: "مسابقة" },
-                      { number: questionCount.toLocaleString("ar-EG"), label: "سؤال" },
+                      { number: submissionCount.toLocaleString("ar-EG"), label: "إجمالي المشاركات", icon: "👥" },
+                      { number: quizCount.toLocaleString("ar-EG"), label: "أعداد المسابقات", icon: "📋" },
+                      { number: avgPerQuiz.toLocaleString("ar-EG"), label: "متوسط المشاركات", icon: "📊" },
+                      { number: highestDay.toLocaleString("ar-EG"), label: "أعلى يوم مشاركات", icon: "🏆" },
+                      { number: `${malePercent}%`, label: "نسبة الذكور", icon: "👨" },
+                      { number: `${femalePercent}%`, label: "نسبة الإناث", icon: "👩" },
                     ].map((stat, i) => (
-                      <div key={i} className="bg-[#eef4fa] rounded-2xl p-6 text-center border border-[#d0dbe6]">
-                        <p className="text-3xl font-bold text-[#1a5c94] mb-2">{stat.number}</p>
-                        <p className="text-sm text-gray-600 font-medium">{stat.label}</p>
+                      <div key={i} className="bg-[#eef4fa] rounded-2xl p-4 text-center border border-[#d0dbe6]">
+                        <span className="text-2xl mb-1 block">{stat.icon}</span>
+                        <p className="text-2xl font-bold text-[#1a5c94] mb-1">{stat.number}</p>
+                        <p className="text-xs text-gray-600 font-medium">{stat.label}</p>
                       </div>
                     ))}
                   </div>
@@ -129,72 +151,6 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ===== FEATURES SECTION ===== */}
-        <section className="py-24 px-4 bg-ramadan-navy">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="w-12 h-px bg-ramadan-gold/50"></div>
-                <svg className="w-6 h-6 text-ramadan-gold" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-                <div className="w-12 h-px bg-ramadan-gold/50"></div>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                لماذا تختار سنا الرمضانية؟
-              </h2>
-              <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-                نوفر لك تجربة مسابقات فريدة ومميزة بمعايير عالية الجودة
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: "📚",
-                  title: "محتوى متنوع",
-                  description: " أسئلة من مجالات متعددة تشمل الشريعة والثقافة والعلوم والتاريخ و الطب وغيرها",
-                },
-                {
-                  icon: "⚡",
-                  title: "جوائز يومية واسبوعية",
-                  description: "3 فائزين يومياً بقيمة 300 ريال لكل فائز + جهاز iPad وجوال في السحب الأسبوعي",
-                },
-                {
-                  icon: "👨‍👩‍👧‍👦",
-                  title: "للعائلة كاملة",
-                  description: "مسابقات مناسبة لجميع أفراد الأسرة بمستويات مختلفة",
-                },
-                {
-                  icon: "✨",
-                  title: "جودة عالية",
-                  description: "أسئلة مراجعة ومدققة من متخصصين لضمان الدقة",
-                },
-                {
-                  icon: "📱",
-                  title: "تصميم متجاوب",
-                  description: "شارك من أي جهاز بنفس التجربة الرائعة",
-                },
-                {
-                  icon: "🕐",
-                  title: "موعد يومي ثابت",
-                  description: "تبدأ من بعد صلاة المغرب مباشرة لمدة ٥ ساعات",
-                },
-              ].map((feature, index) => (
-                <div
-                  key={index}
-                  className="group bg-ramadan-purple/50 border border-ramadan-gold/10 rounded-2xl p-8 hover:border-ramadan-gold/30 transition-all duration-300 hover:-translate-y-2"
-                >
-                  <div className="w-16 h-16 rounded-2xl bg-ramadan-gold/10 flex items-center justify-center mb-6 text-3xl group-hover:scale-110 transition-transform">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
-                  <p className="text-gray-500 leading-relaxed">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* ===== HOW IT WORKS ===== */}
         <section className="py-24 px-4 bg-ramadan-purple">
@@ -222,7 +178,7 @@ export default async function Home() {
                { step: "01", title: "اختر المسابقة", description: "تصفح المسابقات المتاحة اليوميه" },
 
                 { step: "02", title: "أدخل بياناتك", description: "سجل اسمك رباعي، وبالنسبة لزوجات الأبناء تكتب حرم / اسم الزوج رباعي" },
-                { step: "03", title: "ابدأ واستمتع", description: "أجب على الأسئلة وادخل السحب على الإجابات الصحيحة" },
+                { step: "03", title: "ابدأ ", description: "أجب على الأسئلة وادخل السحب على الإجابات الصحيحة" },
               ].map((item, index) => (
                 <div key={index} className="relative text-center">
                   <div className="w-20 h-20 mx-auto bg-gradient-to-br from-ramadan-gold to-ramadan-amber text-ramadan-dark rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-xl shadow-ramadan-gold/30 relative z-10">

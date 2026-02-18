@@ -101,27 +101,6 @@ export default async function QuizzesPage() {
               اختر مسابقة من المسابقات المتاحة وابدأ التحدي الآن
             </p>
 
-            {/* Stats */}
-            <div className="flex justify-center gap-8 mt-8">
-              <div className="text-center">
-                <p className="text-3xl font-bold text-ramadan-gold">{quizzes.length}</p>
-                <p className="text-sm text-gray-500">مسابقة متاحة</p>
-              </div>
-              <div className="w-px bg-ramadan-gold/30"></div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-ramadan-gold">
-                  {quizzes.reduce((acc, q) => acc + (q._count?.questions || 0), 0)}
-                </p>
-                <p className="text-sm text-gray-500">سؤال</p>
-              </div>
-              <div className="w-px bg-ramadan-gold/30"></div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-ramadan-gold">
-                  {quizzes.reduce((acc, q) => acc + (q._count?.submissions || 0), 0)}
-                </p>
-                <p className="text-sm text-gray-500">مشارك</p>
-              </div>
-            </div>
           </div>
         </section>
 

@@ -85,6 +85,7 @@ model Submission {
   fingerprint String?
 
   answers     Json
+  notes       String?    @db.Text
   score       Int
   totalPoints Int
   percentage  Float

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Question } from "@/types";
 import { getMediaUrl, getYoutubeEmbedUrl } from "@/lib/media";
 
@@ -20,6 +20,10 @@ export default function ImageText({
   showResult = false,
 }: ImageTextProps) {
   const [textAnswer, setTextAnswer] = useState<string>((answer as string) || "");
+
+  useEffect(() => {
+    setTextAnswer((answer as string) || "");
+  }, [question.id, answer]);
 
   const correctAnswer = typeof question.correctAnswer === "string"
     ? question.correctAnswer

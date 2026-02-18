@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button, Card, CardContent, useToast } from "@/components/ui";
 import QuestionRenderer from "@/components/quiz/QuestionRenderer";
 import { getDeviceFingerprint } from "@/lib/fingerprint";
+import { getMediaUrl, getYoutubeEmbedUrl } from "@/lib/media";
 import type { Quiz, Question, ParticipantInfo } from "@/types";
 
 export default function QuizStartPage() {
@@ -19,6 +20,7 @@ export default function QuizStartPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string | string[] | boolean>>({});
   const [participant, setParticipant] = useState<ParticipantInfo | null>(null);
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -86,6 +88,7 @@ export default function QuizStartPage() {
           quizId: parseInt(quizId),
           ...participant,
           answers,
+          notes: notes.trim() || undefined,
           fingerprint,
         }),
       });
@@ -93,14 +96,6 @@ export default function QuizStartPage() {
       const result = await response.json();
       if (response.ok) {
         sessionStorage.removeItem(`quiz_${quizId}_participant`);
-        // Mark quiz as completed on this device
-        try {
-          const done = JSON.parse(localStorage.getItem("completed_quizzes") || "[]") as string[];
-          if (!done.includes(quizId)) {
-            done.push(quizId);
-            localStorage.setItem("completed_quizzes", JSON.stringify(done));
-          }
-        } catch { /* ignore */ }
         router.push(`/result/${result.id}`);
       } else {
         toast(result?.error || "حدث خطأ أثناء إرسال الإجابات", "error");
@@ -111,7 +106,7 @@ export default function QuizStartPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [participant, submitting, quizId, answers, router]);
+  }, [participant, submitting, quizId, answers, notes, router]);
 
   if (loading) {
     return (
@@ -174,12 +169,40 @@ export default function QuizStartPage() {
                 {currentQuestion.type === "MULTIPLE_CHOICE" && "اختيار من متعدد"}
                 {currentQuestion.type === "TRUE_FALSE" && "صح أو خطأ"}
                 {currentQuestion.type === "ORDERING" && "ترتيب"}
+                {currentQuestion.type === "IMAGE_TEXT" && "صورة + إجابة نصية"}
                 {currentQuestion.type === "TEXT" && "إجابة نصية"}
               </span>
               <span className="mr-auto text-sm text-accent font-medium">
                 {currentQuestion.points} {currentQuestion.points === 1 ? "نقطة" : "نقاط"}
               </span>
             </div>
+
+            {/* Media Display - for non-IMAGE_TEXT questions that have media */}
+            {currentQuestion.type !== "IMAGE_TEXT" && currentQuestion.mediaUrl && (
+              <div className="rounded-2xl overflow-hidden border border-gray-200 mb-6">
+                {currentQuestion.mediaType === "youtube" ? (
+                  <iframe
+                    src={getYoutubeEmbedUrl(currentQuestion.mediaUrl) || ""}
+                    className="w-full aspect-video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : currentQuestion.mediaType === "video" ? (
+                  <video
+                    src={getMediaUrl(currentQuestion.mediaUrl)}
+                    controls
+                    className="w-full max-h-[400px] object-contain bg-black"
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={getMediaUrl(currentQuestion.mediaUrl)}
+                    alt={currentQuestion.text || "صورة السؤال"}
+                    className="w-full max-h-[400px] object-contain"
+                  />
+                )}
+              </div>
+            )}
 
             {/* Question Text */}
             <h2 className="text-xl font-medium text-foreground mb-6">
@@ -246,6 +269,25 @@ export default function QuizStartPage() {
             </Button>
           )}
         </div>
+
+        {/* Notes & Suggestions - shown on last question */}
+        {isLastQuestion && (
+          <Card variant="elevated" className="mt-6">
+            <CardContent className="py-5">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                ملاحظات واقتراحات (اختياري)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="اكتب ملاحظاتك أو اقتراحاتك هنا..."
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none text-sm resize-none transition-colors"
+                rows={3}
+                dir="rtl"
+              />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Warning if not all answered */}
         {isLastQuestion && answeredCount < questions.length && (

@@ -6,6 +6,7 @@ import type { Submission, Quiz, Question } from "@/types";
 import { getMediaUrl } from "@/lib/media";
 
 interface SubmissionDetails extends Omit<Submission, 'quiz'> {
+  gender?: string;
   quiz: {
     title: string;
     questions: Question[];
@@ -105,15 +106,19 @@ export default function AdminResultsPage() {
   function exportToCSV() {
     if (submissions.length === 0) return;
 
-    const headers = ["الاسم", "رقم الجوال", "الاختبار", "النتيجة", "النسبة", "التاريخ"];
-    const rows = submissions.map(s => [
-      s.name,
-      s.phone,
-      s.quiz.title,
-      `${s.score}/${s.totalPoints}`,
-      `${Math.round(s.percentage)}%`,
-      new Date(s.createdAt).toLocaleDateString("ar-EG"),
-    ]);
+    const headers = ["الاسم", "رقم الجوال", "النوع", "الاختبار", "النتيجة", "النسبة", "التاريخ"];
+    const rows = submissions.map(s => {
+      const gender = s.gender;
+      return [
+        s.name,
+        s.phone,
+        gender === "male" ? "ذكر" : gender === "female" ? "أنثى" : "",
+        s.quiz.title,
+        `${s.score}/${s.totalPoints}`,
+        `${Math.round(s.percentage)}%`,
+        new Date(s.createdAt).toLocaleDateString("ar-EG"),
+      ];
+    });
 
     const csvContent = [headers, ...rows]
       .map(row => row.join(","))
@@ -179,6 +184,7 @@ export default function AdminResultsPage() {
                 <tr>
                   <th className="text-right px-6 py-4 text-sm font-medium text-white/60">#</th>
                   <th className="text-right px-6 py-4 text-sm font-medium text-white/60">المشارك</th>
+                  <th className="text-right px-6 py-4 text-sm font-medium text-white/60">النوع</th>
                   <th className="text-right px-6 py-4 text-sm font-medium text-white/60">الاختبار</th>
                   <th className="text-right px-6 py-4 text-sm font-medium text-white/60">النتيجة</th>
                   <th className="text-right px-6 py-4 text-sm font-medium text-white/60">النسبة</th>
@@ -195,6 +201,9 @@ export default function AdminResultsPage() {
                         <p className="font-medium text-white">{submission.name}</p>
                         <p className="text-sm text-white/50">{submission.phone}</p>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-white/80">
+                      {submission.gender === "male" ? "ذكر" : submission.gender === "female" ? "أنثى" : "-"}
                     </td>
                     <td className="px-6 py-4 text-sm text-white/80">{submission.quiz.title}</td>
                     <td className="px-6 py-4 text-sm text-white/80">
@@ -282,7 +291,11 @@ export default function AdminResultsPage() {
                   <div>
                     <h2 className="text-xl font-bold text-ramadan-gold">إجابات المشارك</h2>
                     <p className="text-white/60 text-sm mt-1">
-                      {viewingSubmission.name} - {viewingSubmission.quiz.title}
+                      {viewingSubmission.name}
+                      {viewingSubmission.gender && (
+                        <span className="text-white/40"> ({viewingSubmission.gender === "male" ? "ذكر" : "أنثى"})</span>
+                      )}
+                      {" - "}{viewingSubmission.quiz.title}
                     </p>
                   </div>
                   <button
@@ -411,6 +424,16 @@ export default function AdminResultsPage() {
                     })}
                   </div>
                 </div>
+
+                {/* Notes */}
+                {viewingSubmission.notes && (
+                  <div className="px-6 pb-4">
+                    <div className="bg-ramadan-dark/30 border border-ramadan-gold/10 rounded-xl p-4">
+                      <h3 className="text-sm font-medium text-ramadan-gold mb-2">ملاحظات واقتراحات</h3>
+                      <p className="text-white/70 text-sm whitespace-pre-wrap">{viewingSubmission.notes}</p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Modal Footer */}
                 <div className="p-4 border-t border-ramadan-gold/20 shrink-0">

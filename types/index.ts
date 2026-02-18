@@ -35,6 +35,8 @@ export interface Submission {
   name: string;
   email?: string;
   phone?: string;
+  gender?: string;
+  notes?: string;
   answers: Record<number, string | string[] | boolean>;
   score: number;
   totalPoints: number;

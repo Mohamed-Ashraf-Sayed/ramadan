@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface TextAnswerProps {
   questionId: number;
@@ -22,6 +22,10 @@ export default function TextAnswer({
   correctAnswer,
 }: TextAnswerProps) {
   const [textAnswer, setTextAnswer] = useState<string>(answer || "");
+
+  useEffect(() => {
+    setTextAnswer(answer || "");
+  }, [questionId, answer]);
 
   const handleChange = (value: string) => {
     setTextAnswer(value);

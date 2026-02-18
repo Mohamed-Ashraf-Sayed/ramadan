@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Button, Input, Card, CardContent, CardHeader, CardFooter } from "@/components/ui";
-import { getDeviceFingerprint } from "@/lib/fingerprint";
 import type { Quiz } from "@/types";
 
 export default function QuizRegistrationPage() {
@@ -22,31 +21,6 @@ export default function QuizRegistrationPage() {
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [alreadyDone, setAlreadyDone] = useState(false);
-
-  useEffect(() => {
-    // Check localStorage
-    try {
-      const done = JSON.parse(localStorage.getItem("completed_quizzes") || "[]") as string[];
-      if (done.includes(quizId)) {
-        setAlreadyDone(true);
-        return;
-      }
-    } catch { /* ignore */ }
-
-    // Check server cookie + device fingerprint
-    async function checkDevice() {
-      try {
-        const fp = await getDeviceFingerprint();
-        const res = await fetch(`/api/submissions/check?quizId=${quizId}&fingerprint=${fp}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.completed) setAlreadyDone(true);
-        }
-      } catch { /* ignore */ }
-    }
-    checkDevice();
-  }, [quizId]);
 
   useEffect(() => {
     async function fetchQuiz() {
@@ -99,23 +73,6 @@ export default function QuizRegistrationPage() {
 
     setSubmitting(true);
 
-    // Check if user already submitted this quiz
-    if (formData.phone.trim()) {
-      try {
-        const res = await fetch(`/api/submissions?quizId=${quizId}&phone=${encodeURIComponent(formData.phone.trim())}`);
-        if (res.ok) {
-          const submissions = await res.json();
-          if (submissions.length > 0) {
-            setErrors({ phone: "لقد شاركت في هذا الاختبار من قبل" });
-            setSubmitting(false);
-            return;
-          }
-        }
-      } catch {
-        // Continue if check fails
-      }
-    }
-
     // Store participant info in sessionStorage
     sessionStorage.setItem(
       `quiz_${quizId}_participant`,
@@ -149,29 +106,6 @@ export default function QuizRegistrationPage() {
           </Link>
         </div>
       </div>
-    );
-  }
-
-  if (alreadyDone) {
-    return (
-      <main className="min-h-screen islamic-pattern py-12 px-4">
-        <div className="max-w-lg mx-auto text-center">
-          <Card variant="elevated">
-            <CardContent className="py-12 space-y-4">
-              <div className="w-20 h-20 mx-auto bg-amber-100 rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h1 className="text-2xl font-bold text-primary-dark">لقد شاركت في هذا الاختبار من قبل</h1>
-              <p className="text-muted-foreground">لا يمكن المشاركة في نفس الاختبار أكثر من مرة</p>
-              <Link href="/quiz">
-                <Button className="mt-4">العودة للاختبارات</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
     );
   }
 

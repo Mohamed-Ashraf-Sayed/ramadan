@@ -80,6 +80,7 @@ export default function QuestionRenderer({
     case "IMAGE_TEXT":
       return (
         <ImageText
+          key={question.id}
           question={{
             ...question,
             correctAnswer: correctAnswer as string,
@@ -94,6 +95,7 @@ export default function QuestionRenderer({
     case "TEXT":
       return (
         <TextAnswer
+          key={question.id}
           questionId={question.id}
           answer={answer as string | null}
           onAnswer={(id, ans) => onAnswer(id, ans)}
