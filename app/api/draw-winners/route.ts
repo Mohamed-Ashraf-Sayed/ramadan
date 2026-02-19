@@ -41,6 +41,24 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// DELETE /api/draw-winners?id=123 - Delete a draw winner
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing winner ID" }, { status: 400 });
+    }
+
+    await prisma.drawWinner.delete({ where: { id: parseInt(id) } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting draw winner:", error);
+    return NextResponse.json({ error: "Failed to delete draw winner" }, { status: 500 });
+  }
+}
+
 // POST /api/draw-winners - Save a draw winner
 export async function POST(request: NextRequest) {
   try {

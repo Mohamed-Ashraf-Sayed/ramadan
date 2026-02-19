@@ -105,9 +105,8 @@ function QuizDrawTab() {
 
   const topScorers = useMemo(() => {
     if (submissions.length === 0) return [];
-    const maxScore = Math.max(...submissions.map((s) => s.percentage));
     return submissions
-      .filter((s) => s.percentage === maxScore)
+      .filter((s) => s.percentage > 33)
       .map((s) => ({
         name: s.name,
         phone: s.phone,
@@ -166,10 +165,7 @@ function QuizDrawTab() {
             {topScorers.length > 0 && (
               <>
                 <span className="text-white/60">
-                  أعلى نتيجة: <strong className="text-ramadan-gold">{Math.round(topScorers[0].percentage)}%</strong>
-                </span>
-                <span className="text-white/60">
-                  المتصدرين بنفس النتيجة: <strong className="text-ramadan-gold">{topScorers.length}</strong>
+                  المؤهلين للسحب (أعلى من 33%): <strong className="text-ramadan-gold">{topScorers.length}</strong>
                 </span>
               </>
             )}
@@ -221,6 +217,7 @@ function QuizDrawTab() {
                   <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
                   <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
                   <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
+                  <th className="text-right text-white/60 text-sm font-medium p-3">حذف</th>
                 </tr>
               </thead>
               <tbody>
@@ -236,6 +233,29 @@ function QuizDrawTab() {
                           {Math.round(w.percentage)}%
                         </span>
                       </td>
+                      <td className="p-3">
+                        <button
+                          onClick={async () => {
+                            if (!confirm("هل أنت متأكد من حذف هذا الفائز؟")) return;
+                            try {
+                              const res = await fetch(`/api/draw-winners?id=${w.id}`, { method: "DELETE" });
+                              if (res.ok) {
+                                toast("تم حذف الفائز", "success");
+                                fetchSavedWinners(selectedQuiz);
+                              } else {
+                                toast("حدث خطأ أثناء الحذف", "error");
+                              }
+                            } catch {
+                              toast("حدث خطأ أثناء الحذف", "error");
+                            }
+                          }}
+                          className="text-error hover:text-red-400 transition-colors p-1"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -249,7 +269,8 @@ function QuizDrawTab() {
       {selectedQuiz && !loading && submissions.length > 0 && (
         <DrawMachine
           candidates={topScorers}
-          title={`المتصدرين بنتيجة ${topScorers.length > 0 ? Math.round(topScorers[0].percentage) : 0}%`}
+          title={`المؤهلين للسحب (${topScorers.length} مشارك أعلى من 33%)`}
+          totalParticipants={submissions.length}
           showConfirmButton
           onWinnerConfirmed={async (winner) => {
             try {
@@ -461,6 +482,7 @@ function WeeklyDrawTab() {
           <DrawMachine
             candidates={drawCandidates}
             title={`السحب الأسبوعي بين ${drawCandidates.length} فائز`}
+            totalParticipants={drawCandidates.length}
             showConfirmButton
             onWinnerConfirmed={async (winner) => {
               // Find the original winner record to get the quizId
@@ -523,6 +545,7 @@ function WeeklyDrawTab() {
                       <th className="text-right text-white/60 text-sm font-medium p-3">الجوال</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">الاختبار الأصلي</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">حذف</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -539,6 +562,29 @@ function WeeklyDrawTab() {
                             <span className="inline-block px-3 py-1 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-sm font-bold">
                               {Math.round(w.percentage)}%
                             </span>
+                          </td>
+                          <td className="p-3">
+                            <button
+                              onClick={async () => {
+                                if (!confirm("هل أنت متأكد من حذف هذا الفائز؟")) return;
+                                try {
+                                  const res = await fetch(`/api/draw-winners?id=${w.id}`, { method: "DELETE" });
+                                  if (res.ok) {
+                                    toast("تم حذف الفائز", "success");
+                                    fetchWinners();
+                                  } else {
+                                    toast("حدث خطأ أثناء الحذف", "error");
+                                  }
+                                } catch {
+                                  toast("حدث خطأ أثناء الحذف", "error");
+                                }
+                              }}
+                              className="text-error hover:text-red-400 transition-colors p-1"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
                           </td>
                         </tr>
                       );
@@ -562,10 +608,12 @@ interface DrawWinnerWithType extends SavedDrawWinner {
 }
 
 function WinnersListTab() {
+  const { toast } = useToast();
   const [allWinners, setAllWinners] = useState<DrawWinnerWithType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  function fetchAllWinners() {
+    setLoading(true);
     Promise.all([
       fetch("/api/draw-winners?drawType=quiz").then((r) => r.ok ? r.json() : []),
       fetch("/api/draw-winners?drawType=weekly").then((r) => r.ok ? r.json() : []),
@@ -577,7 +625,24 @@ function WinnersListTab() {
       })
       .catch(() => setAllWinners([]))
       .finally(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(() => { fetchAllWinners(); }, []);
+
+  async function deleteWinner(id: number) {
+    if (!confirm("هل أنت متأكد من حذف هذا الفائز؟")) return;
+    try {
+      const res = await fetch(`/api/draw-winners?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast("تم حذف الفائز", "success");
+        fetchAllWinners();
+      } else {
+        toast("حدث خطأ أثناء الحذف", "error");
+      }
+    } catch {
+      toast("حدث خطأ أثناء الحذف", "error");
+    }
+  }
 
   // Group quiz winners by quiz
   const quizWinnersGrouped = useMemo(() => {
@@ -641,6 +706,7 @@ function WinnersListTab() {
                       <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">حذف</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -655,6 +721,13 @@ function WinnersListTab() {
                             <span className="inline-block px-3 py-1 bg-success/20 text-success rounded-full text-sm font-bold">
                               {Math.round(w.percentage)}%
                             </span>
+                          </td>
+                          <td className="p-3">
+                            <button onClick={() => deleteWinner(w.id)} className="text-error hover:text-red-400 transition-colors p-1">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
                           </td>
                         </tr>
                       );
@@ -685,6 +758,7 @@ function WinnersListTab() {
                     <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
                     <th className="text-right text-white/60 text-sm font-medium p-3">الاختبار</th>
                     <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
+                    <th className="text-right text-white/60 text-sm font-medium p-3">حذف</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -700,6 +774,13 @@ function WinnersListTab() {
                           <span className="inline-block px-3 py-1 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-sm font-bold">
                             {Math.round(w.percentage)}%
                           </span>
+                        </td>
+                        <td className="p-3">
+                          <button onClick={() => deleteWinner(w.id)} className="text-error hover:text-red-400 transition-colors p-1">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
                         </td>
                       </tr>
                     );

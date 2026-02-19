@@ -44,8 +44,18 @@ export default function QuizRegistrationPage() {
 
     if (!formData.name.trim()) {
       newErrors.name = "الاسم مطلوب";
-    } else if (formData.name.trim().length < 3) {
-      newErrors.name = "الاسم يجب أن يكون 3 أحرف على الأقل";
+    } else {
+      const nameParts = formData.name.trim().split(/\s+/);
+      const isHarm = /^حرم[/\s]/.test(formData.name.trim()) || nameParts[0] === "حرم";
+      if (isHarm) {
+        // حرم + اسم رباعي = 5 أجزاء على الأقل
+        const nameAfterHarm = nameParts.slice(1).filter(p => p !== "/" && p !== "-");
+        if (nameAfterHarm.length < 4) {
+          newErrors.name = "يرجى كتابة: حرم / اسم الزوج رباعي";
+        }
+      } else if (nameParts.length < 4) {
+        newErrors.name = "يرجى كتابة الاسم رباعي";
+      }
     }
 
     if (!formData.phone.trim()) {
