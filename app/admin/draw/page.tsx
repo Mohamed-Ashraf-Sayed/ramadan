@@ -106,7 +106,7 @@ function QuizDrawTab() {
   const topScorers = useMemo(() => {
     if (submissions.length === 0) return [];
     return submissions
-      .filter((s) => s.percentage > 33)
+      .filter((s) => s.percentage > 60)
       .map((s) => ({
         name: s.name,
         phone: s.phone,
@@ -165,7 +165,7 @@ function QuizDrawTab() {
             {topScorers.length > 0 && (
               <>
                 <span className="text-white/60">
-                  المؤهلين للسحب (أعلى من 33%): <strong className="text-ramadan-gold">{topScorers.length}</strong>
+                  المؤهلين للسحب (أعلى من 60%): <strong className="text-ramadan-gold">{topScorers.length}</strong>
                 </span>
               </>
             )}
@@ -216,6 +216,7 @@ function QuizDrawTab() {
                 <tr className="border-b border-ramadan-gold/10">
                   <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
                   <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
+                  <th className="text-right text-white/60 text-sm font-medium p-3">الجوال</th>
                   <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
                   <th className="text-right text-white/60 text-sm font-medium p-3">حذف</th>
                 </tr>
@@ -228,6 +229,7 @@ function QuizDrawTab() {
                     <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
                       <td className="p-3 text-ramadan-gold font-bold">{w.name}</td>
+                      <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
                       <td className="p-3">
                         <span className="inline-block px-3 py-1 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-sm font-bold">
                           {Math.round(w.percentage)}%
@@ -265,13 +267,20 @@ function QuizDrawTab() {
         </div>
       )}
 
+      {/* Max winners warning */}
+      {selectedQuiz && !loading && submissions.length > 0 && savedWinners.length >= 3 && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-center">
+          <p className="text-amber-400 font-bold">تم الوصول للحد الأقصى (3 فائزين) لهذا الاختبار</p>
+        </div>
+      )}
+
       {/* Draw Machine */}
       {selectedQuiz && !loading && submissions.length > 0 && (
         <DrawMachine
           candidates={topScorers}
-          title={`المؤهلين للسحب (${topScorers.length} مشارك أعلى من 33%)`}
+          title={`المؤهلين للسحب (${topScorers.length} مشارك أعلى من 60%)`}
           totalParticipants={submissions.length}
-          showConfirmButton
+          showConfirmButton={savedWinners.length < 3}
           onWinnerConfirmed={async (winner) => {
             try {
               const res = await fetch("/api/draw-winners", {
@@ -612,6 +621,20 @@ function WinnersListTab() {
   const [allWinners, setAllWinners] = useState<DrawWinnerWithType[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Manual winner form state
+  const [showForm, setShowForm] = useState(false);
+  const [formMode, setFormMode] = useState<"manual" | "participant">("manual");
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [selectedQuizId, setSelectedQuizId] = useState("");
+  const [participants, setParticipants] = useState<(Submission & { quiz: Quiz })[]>([]);
+  const [selectedParticipant, setSelectedParticipant] = useState("");
+  const [manualName, setManualName] = useState("");
+  const [manualPhone, setManualPhone] = useState("");
+  const [drawType, setDrawType] = useState<"quiz" | "weekly">("quiz");
+  const [submitting, setSubmitting] = useState(false);
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
+  const [participantSearch, setParticipantSearch] = useState("");
+
   function fetchAllWinners() {
     setLoading(true);
     Promise.all([
@@ -628,6 +651,97 @@ function WinnersListTab() {
   }
 
   useEffect(() => { fetchAllWinners(); }, []);
+
+  // Fetch quizzes when form is opened
+  useEffect(() => {
+    if (showForm && quizzes.length === 0) {
+      fetch("/api/quizzes?all=true")
+        .then((r) => r.ok ? r.json() : [])
+        .then(setQuizzes)
+        .catch(() => {});
+    }
+  }, [showForm, quizzes.length]);
+
+  // Fetch participants when quiz is selected in participant mode
+  useEffect(() => {
+    if (formMode === "participant" && selectedQuizId) {
+      setLoadingParticipants(true);
+      setSelectedParticipant("");
+      setParticipantSearch("");
+      fetch(`/api/submissions?quizId=${selectedQuizId}`)
+        .then((r) => r.ok ? r.json() : [])
+        .then(setParticipants)
+        .catch(() => setParticipants([]))
+        .finally(() => setLoadingParticipants(false));
+    }
+  }, [formMode, selectedQuizId]);
+
+  async function handleAddWinner() {
+    if (!selectedQuizId) {
+      toast("اختر الاختبار أولاً", "error");
+      return;
+    }
+
+    let name = "";
+    let phone = "";
+    let score = 0;
+    let totalPoints = 0;
+    let percentage = 0;
+
+    if (formMode === "manual") {
+      if (!manualName.trim()) {
+        toast("أدخل اسم الفائز", "error");
+        return;
+      }
+      name = manualName.trim();
+      phone = manualPhone.trim();
+    } else {
+      if (!selectedParticipant) {
+        toast("اختر مشارك من القائمة", "error");
+        return;
+      }
+      const p = participants.find((s) => String(s.id) === selectedParticipant);
+      if (!p) return;
+      name = p.name;
+      phone = p.phone || "";
+      score = p.score;
+      totalPoints = p.totalPoints;
+      percentage = p.percentage;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/draw-winners", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quizId: parseInt(selectedQuizId),
+          name,
+          phone: phone || null,
+          score,
+          totalPoints,
+          percentage,
+          drawType,
+        }),
+      });
+      if (res.ok) {
+        toast("تم إضافة الفائز بنجاح", "success");
+        fetchAllWinners();
+        // Reset form
+        setManualName("");
+        setManualPhone("");
+        setSelectedParticipant("");
+        setShowForm(false);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast(data.error || "حدث خطأ أثناء إضافة الفائز", "error");
+      }
+    } catch {
+      toast("حدث خطأ أثناء إضافة الفائز", "error");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   async function deleteWinner(id: number) {
     if (!confirm("هل أنت متأكد من حذف هذا الفائز؟")) return;
@@ -667,21 +781,226 @@ function WinnersListTab() {
     );
   }
 
-  if (allWinners.length === 0) {
+  if (allWinners.length === 0 && !showForm) {
     return (
-      <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
-        <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
-          <svg className="w-10 h-10 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      <div className="space-y-6">
+        {/* Add Winner Button */}
+        <div className="flex justify-end">
+          <Button onClick={() => setShowForm(true)}>
+            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            إضافة فائز يدوي
+          </Button>
         </div>
-        <p className="text-white/40 text-lg">لا يوجد فائزين محفوظين بعد</p>
+        <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
+          <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
+            <svg className="w-10 h-10 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-white/40 text-lg">لا يوجد فائزين محفوظين بعد</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Add Winner Button & Form */}
+      <div className="flex justify-end">
+        <Button
+          onClick={() => setShowForm(!showForm)}
+          className={showForm ? "bg-white/10 text-white border border-white/20" : ""}
+        >
+          {showForm ? (
+            <>
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              إلغاء
+            </>
+          ) : (
+            <>
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              إضافة فائز يدوي
+            </>
+          )}
+        </Button>
+      </div>
+
+      {showForm && (
+        <div className="bg-ramadan-purple/50 border border-ramadan-gold/20 rounded-xl p-6 space-y-5">
+          <h3 className="text-lg font-bold text-ramadan-gold">إضافة فائز</h3>
+
+          {/* Mode Toggle */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setFormMode("manual")}
+              className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all border-2 ${
+                formMode === "manual"
+                  ? "bg-ramadan-gold/20 text-ramadan-gold border-ramadan-gold/50"
+                  : "text-white/50 border-white/10 hover:border-white/20"
+              }`}
+            >
+              إدخال يدوي
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormMode("participant")}
+              className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all border-2 ${
+                formMode === "participant"
+                  ? "bg-ramadan-gold/20 text-ramadan-gold border-ramadan-gold/50"
+                  : "text-white/50 border-white/10 hover:border-white/20"
+              }`}
+            >
+              اختيار من المشاركين
+            </button>
+          </div>
+
+          {/* Quiz Selection */}
+          <Select
+            label="الاختبار"
+            options={[
+              { value: "", label: "-- اختر اختبار --" },
+              ...quizzes.map((q) => ({ value: String(q.id), label: q.title })),
+            ]}
+            value={selectedQuizId}
+            onChange={(e) => setSelectedQuizId(e.target.value)}
+          />
+
+          {/* Draw Type */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-white/60">نوع السحب</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setDrawType("quiz")}
+                className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all border ${
+                  drawType === "quiz"
+                    ? "bg-ramadan-gold/20 text-ramadan-gold border-ramadan-gold/50"
+                    : "text-white/50 border-white/10 hover:border-white/20"
+                }`}
+              >
+                سحب اختبار
+              </button>
+              <button
+                type="button"
+                onClick={() => setDrawType("weekly")}
+                className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all border ${
+                  drawType === "weekly"
+                    ? "bg-ramadan-gold/20 text-ramadan-gold border-ramadan-gold/50"
+                    : "text-white/50 border-white/10 hover:border-white/20"
+                }`}
+              >
+                سحب أسبوعي
+              </button>
+            </div>
+          </div>
+
+          {/* Manual Entry Fields */}
+          {formMode === "manual" && (
+            <div className="space-y-4">
+              <Input
+                label="اسم الفائز"
+                placeholder="أدخل الاسم الكامل"
+                value={manualName}
+                onChange={(e) => setManualName(e.target.value)}
+              />
+              <Input
+                label="رقم الجوال (اختياري)"
+                placeholder="05xxxxxxxx"
+                type="tel"
+                value={manualPhone}
+                onChange={(e) => setManualPhone(e.target.value)}
+              />
+            </div>
+          )}
+
+          {/* Participant Selection */}
+          {formMode === "participant" && selectedQuizId && (
+            <div className="space-y-3">
+              {loadingParticipants ? (
+                <div className="flex items-center justify-center py-6">
+                  <div className="w-8 h-8 border-3 border-ramadan-gold border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : participants.length === 0 ? (
+                <p className="text-white/40 text-sm text-center py-4">لا يوجد مشاركين في هذا الاختبار</p>
+              ) : (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-white/60">اختر المشارك</label>
+                  {/* Search Input */}
+                  <div className="relative">
+                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="ابحث بالاسم أو رقم الجوال..."
+                      value={participantSearch}
+                      onChange={(e) => setParticipantSearch(e.target.value)}
+                      className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-ramadan-purple/50 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-ramadan-gold/30 focus:border-ramadan-gold/30"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-y-auto rounded-xl border border-white/10 divide-y divide-white/5">
+                    {participants
+                      .filter((p) => {
+                        if (!participantSearch.trim()) return true;
+                        const q = participantSearch.trim().toLowerCase();
+                        return p.name.toLowerCase().includes(q) || (p.phone && p.phone.includes(q));
+                      })
+                      .map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setSelectedParticipant(String(p.id))}
+                        className={`w-full flex items-center justify-between px-4 py-3 text-right transition-all ${
+                          selectedParticipant === String(p.id)
+                            ? "bg-ramadan-gold/20"
+                            : "hover:bg-white/5"
+                        }`}
+                      >
+                        <div>
+                          <p className={`font-medium ${selectedParticipant === String(p.id) ? "text-ramadan-gold" : "text-white"}`}>
+                            {p.name}
+                          </p>
+                          <p className="text-white/40 text-xs" dir="ltr">{p.phone || "-"}</p>
+                        </div>
+                        <span className={`text-sm font-bold px-2 py-1 rounded-full ${
+                          p.percentage > 60 ? "bg-success/20 text-success" : "bg-white/10 text-white/50"
+                        }`}>
+                          {Math.round(p.percentage)}%
+                        </span>
+                      </button>
+                    ))}
+                    {participants.filter((p) => {
+                      if (!participantSearch.trim()) return true;
+                      const q = participantSearch.trim().toLowerCase();
+                      return p.name.toLowerCase().includes(q) || (p.phone && p.phone.includes(q));
+                    }).length === 0 && (
+                      <p className="text-white/30 text-sm text-center py-4">لا توجد نتائج</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Submit */}
+          <Button
+            onClick={handleAddWinner}
+            disabled={submitting || !selectedQuizId}
+            isLoading={submitting}
+            className="w-full"
+          >
+            إضافة الفائز
+          </Button>
+        </div>
+      )}
+
       {/* Quiz Winners - grouped by quiz */}
       {Object.keys(quizWinnersGrouped).length > 0 && (
         <div className="space-y-4">
@@ -705,6 +1024,7 @@ function WinnersListTab() {
                     <tr className="border-b border-white/10">
                       <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">الجوال</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">حذف</th>
                     </tr>
@@ -717,6 +1037,7 @@ function WinnersListTab() {
                         <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                           <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
                           <td className="p-3 text-white font-medium">{w.name}</td>
+                          <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
                           <td className="p-3">
                             <span className="inline-block px-3 py-1 bg-success/20 text-success rounded-full text-sm font-bold">
                               {Math.round(w.percentage)}%

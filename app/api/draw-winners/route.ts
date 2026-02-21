@@ -72,6 +72,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Max 3 winners per quiz for quiz draws
+    if (!drawType || drawType === "quiz") {
+      const existingCount = await prisma.drawWinner.count({
+        where: { quizId, drawType: "quiz" },
+      });
+      if (existingCount >= 3) {
+        return NextResponse.json(
+          { error: "تم الوصول للحد الأقصى (3 فائزين) لهذا الاختبار" },
+          { status: 400 }
+        );
+      }
+    }
+
     const winner = await prisma.drawWinner.create({
       data: {
         quizId,

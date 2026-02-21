@@ -14,6 +14,13 @@ export default function QuizRegistrationPage() {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [nameType, setNameType] = useState<"regular" | "harm">("regular");
+  const [nameParts, setNameParts] = useState({
+    firstName: "",
+    fatherName: "",
+    grandFatherName: "",
+    familyName: "",
+  });
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -39,23 +46,34 @@ export default function QuizRegistrationPage() {
     fetchQuiz();
   }, [quizId]);
 
+  // Build full name from parts
+  const buildFullName = () => {
+    const parts = [
+      nameParts.firstName.trim(),
+      nameParts.fatherName.trim(),
+      nameParts.grandFatherName.trim(),
+      nameParts.familyName.trim(),
+    ].filter(Boolean);
+    if (nameType === "harm") {
+      return `حرم ${parts.join(" ")}`;
+    }
+    return parts.join(" ");
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "الاسم مطلوب";
-    } else {
-      const nameParts = formData.name.trim().split(/\s+/);
-      const isHarm = /^حرم[/\s]/.test(formData.name.trim()) || nameParts[0] === "حرم";
-      if (isHarm) {
-        // حرم + اسم رباعي = 5 أجزاء على الأقل
-        const nameAfterHarm = nameParts.slice(1).filter(p => p !== "/" && p !== "-");
-        if (nameAfterHarm.length < 4) {
-          newErrors.name = "يرجى كتابة: حرم / اسم الزوج رباعي";
-        }
-      } else if (nameParts.length < 4) {
-        newErrors.name = "يرجى كتابة الاسم رباعي";
-      }
+    if (!nameParts.firstName.trim()) {
+      newErrors.firstName = "مطلوب";
+    }
+    if (!nameParts.fatherName.trim()) {
+      newErrors.fatherName = "مطلوب";
+    }
+    if (!nameParts.grandFatherName.trim()) {
+      newErrors.grandFatherName = "مطلوب";
+    }
+    if (!nameParts.familyName.trim()) {
+      newErrors.familyName = "مطلوب";
     }
 
     if (!formData.phone.trim()) {
@@ -83,10 +101,13 @@ export default function QuizRegistrationPage() {
 
     setSubmitting(true);
 
+    const fullName = buildFullName();
+    const submitData = { ...formData, name: fullName };
+
     // Store participant info in sessionStorage
     sessionStorage.setItem(
       `quiz_${quizId}_participant`,
-      JSON.stringify(formData)
+      JSON.stringify(submitData)
     );
 
     // Navigate to quiz start page
@@ -148,15 +169,86 @@ export default function QuizRegistrationPage() {
                 أدخل بياناتك للمشاركة في الاختبار
               </p>
 
-              <Input
-                label="الاسم الكامل"
-                placeholder="أدخل اسمك"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                error={errors.name}
-              />
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+                <p className="text-sm font-semibold text-blue-700">
+                  اختر أولاً نوع الاسم: &quot;الاسم الرباعي&quot; أو &quot;حرم&quot; لزوجات الأبناء
+                </p>
+              </div>
+
+              {/* Name Type Toggle */}
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-foreground">الاسم</label>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setNameType("regular")}
+                    className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all border-2 ${
+                      nameType === "regular"
+                        ? "bg-primary/10 text-primary border-primary"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    الاسم الرباعي
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNameType("harm")}
+                    className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all border-2 ${
+                      nameType === "harm"
+                        ? "bg-primary/10 text-primary border-primary"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    حرم (زوجات الأبناء)
+                  </button>
+                </div>
+
+                {nameType === "harm" && (
+                  <p className="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
+                    سيتم إضافة &quot;حرم&quot; تلقائياً قبل الاسم - أدخلي اسم الزوج رباعي
+                  </p>
+                )}
+
+                {/* Name Parts Inputs */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    label={nameType === "harm" ? "اسم الزوج" : "الاسم الأول"}
+                    placeholder={nameType === "harm" ? "اسم الزوج" : "الاسم"}
+                    value={nameParts.firstName}
+                    onChange={(e) =>
+                      setNameParts({ ...nameParts, firstName: e.target.value })
+                    }
+                    error={errors.firstName}
+                  />
+                  <Input
+                    label="الأب"
+                    placeholder="اسم الأب"
+                    value={nameParts.fatherName}
+                    onChange={(e) =>
+                      setNameParts({ ...nameParts, fatherName: e.target.value })
+                    }
+                    error={errors.fatherName}
+                  />
+                  <Input
+                    label="الجد"
+                    placeholder="اسم الجد"
+                    value={nameParts.grandFatherName}
+                    onChange={(e) =>
+                      setNameParts({ ...nameParts, grandFatherName: e.target.value })
+                    }
+                    error={errors.grandFatherName}
+                  />
+                  <Input
+                    label="العائلة"
+                    placeholder="اسم العائلة"
+                    value={nameParts.familyName}
+                    onChange={(e) =>
+                      setNameParts({ ...nameParts, familyName: e.target.value })
+                    }
+                    error={errors.familyName}
+                  />
+                </div>
+              </div>
 
               <Input
                 label="رقم الجوال"

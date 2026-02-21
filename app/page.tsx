@@ -3,6 +3,8 @@ import { Button } from "@/components/ui";
 import Header from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const [
     quizCount,
@@ -10,6 +12,7 @@ export default async function Home() {
     maleCount,
     femaleCount,
     highestDayResult,
+    drawWinners,
   ] = await Promise.all([
     prisma.quiz.count(),
     prisma.submission.count(),
@@ -21,7 +24,21 @@ export default async function Home() {
       ORDER BY cnt DESC
       LIMIT 1
     `,
+    prisma.drawWinner.findMany({
+      where: { drawType: "quiz" },
+      include: { quiz: { select: { id: true, title: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
+
+  // Group winners by quiz
+  const winnersByQuiz: Record<number, { title: string; winners: { name: string; createdAt: Date }[] }> = {};
+  for (const w of drawWinners) {
+    if (!winnersByQuiz[w.quizId]) {
+      winnersByQuiz[w.quizId] = { title: w.quiz.title, winners: [] };
+    }
+    winnersByQuiz[w.quizId].winners.push({ name: w.name, createdAt: w.createdAt });
+  }
 
   const avgPerQuiz = quizCount > 0 ? Math.round(submissionCount / quizCount) : 0;
   const highestDay = highestDayResult.length > 0 ? Number(highestDayResult[0].cnt) : 0;
@@ -151,6 +168,59 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* ===== WINNERS SECTION ===== */}
+        {Object.keys(winnersByQuiz).length > 0 && (
+          <section className="py-24 px-4 bg-gradient-to-b from-[#0a1929] via-[#0f2b46] to-[#0a1929] relative overflow-hidden">
+            {/* Decorative stars */}
+            <div className="absolute inset-0 pointer-events-none">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1 h-1 bg-ramadan-gold rounded-full animate-twinkle"
+                  style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 3}s`, opacity: 0.4 }}
+                />
+              ))}
+            </div>
+
+            <div className="max-w-7xl mx-auto relative z-10">
+              <div className="text-center mb-16">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <svg className="w-8 h-8 text-ramadan-gold" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                  </svg>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-ramadan-gold mb-6">
+                  فائزين المسابقات
+                </h2>
+                <p className="text-lg text-white/70">
+                  الفائزين في سحوبات مسابقات سنا الرمضانية
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Object.entries(winnersByQuiz).map(([quizId, group]) => (
+                  <div key={quizId} className="bg-gradient-to-br from-[#1a3a5c] to-[#0f2b46] border-2 border-ramadan-gold/30 rounded-2xl overflow-hidden shadow-xl shadow-ramadan-gold/10">
+                    <div className="bg-gradient-to-r from-ramadan-gold/20 to-ramadan-gold/10 border-b-2 border-ramadan-gold/30 px-6 py-4">
+                      <h3 className="font-bold text-ramadan-gold text-xl">{group.title}</h3>
+                    </div>
+                    <div className="p-6 space-y-4">
+                      {group.winners.map((w, i) => (
+                        <div key={i} className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3 border border-white/10">
+                          <div className="w-10 h-10 rounded-full bg-ramadan-gold/20 flex items-center justify-center flex-shrink-0 border border-ramadan-gold/40">
+                            <svg className="w-5 h-5 text-ramadan-gold" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                            </svg>
+                          </div>
+                          <span className="text-white text-lg font-bold">{w.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ===== HOW IT WORKS ===== */}
         <section className="py-24 px-4 bg-ramadan-purple">

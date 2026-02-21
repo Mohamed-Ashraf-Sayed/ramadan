@@ -20,6 +20,18 @@ interface DrawMachineProps {
   showConfirmButton?: boolean;
 }
 
+  // Show last 4 digits of phone as identifier
+function phoneTag(phone?: string) {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, "");
+  const last4 = digits.slice(-4);
+  return (
+    <span className="text-white/40 text-sm font-normal mr-2" dir="ltr">
+      (****{last4})
+    </span>
+  );
+}
+
 export default function DrawMachine({ candidates, title, totalParticipants, onWinnerConfirmed, showConfirmButton }: DrawMachineProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentName, setCurrentName] = useState<string>("");
@@ -128,6 +140,9 @@ export default function DrawMachine({ candidates, title, totalParticipants, onWi
         </div>
         <h2 className="text-2xl font-bold text-ramadan-gold mb-2">الفائز الوحيد!</h2>
         <p className="text-3xl font-bold text-white mb-2">{solo.name}</p>
+        {solo.phone && (
+          <p className="text-white/50 text-base mb-2" dir="ltr">****{solo.phone.replace(/\D/g, "").slice(-4)}</p>
+        )}
         {solo.extra && <p className="text-white/40 text-sm mb-4">{solo.extra}</p>}
         {solo.percentage !== undefined && (
           <span className="inline-block px-6 py-2 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-lg font-bold">
@@ -231,6 +246,9 @@ export default function DrawMachine({ candidates, title, totalParticipants, onWi
               <p className="text-6xl md:text-8xl font-bold text-ramadan-gold mb-4 animate-bounce-slow">
                 {winner.name}
               </p>
+              {winner.phone && (
+                <p className="text-white/50 text-xl" dir="ltr">****{winner.phone.replace(/\D/g, "").slice(-4)}</p>
+              )}
               {winner.extra && <p className="text-white/40 text-lg mt-2">{winner.extra}</p>}
               {winner.percentage !== undefined && (
                 <div className="mt-6">
@@ -295,28 +313,6 @@ export default function DrawMachine({ candidates, title, totalParticipants, onWi
       {fullscreenOverlay}
 
       <div className="space-y-6">
-        {/* Candidates List */}
-        <div className="bg-ramadan-purple/30 border border-ramadan-gold/20 rounded-xl p-6">
-          <h3 className="text-lg font-bold text-ramadan-gold mb-4">
-            {title || `المرشحين للسحب (${candidates.length})`}
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {candidates.map((c, i) => (
-              <div
-                key={i}
-                className={`p-3 rounded-lg border transition-all duration-300 ${
-                  winner && winner.name === c.name && winner.phone === c.phone
-                    ? "bg-ramadan-gold/20 border-ramadan-gold/50 scale-105"
-                    : "bg-white/5 border-white/10"
-                }`}
-              >
-                <p className="font-medium text-white">{c.name}</p>
-                {c.extra && <p className="text-xs text-ramadan-gold/60">{c.extra}</p>}
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Draw Box */}
         <div className="relative">
           {showConfetti && !isFullscreen && <Confetti />}
@@ -347,6 +343,9 @@ export default function DrawMachine({ candidates, title, totalParticipants, onWi
                   <p className="text-5xl md:text-6xl font-bold text-ramadan-gold mb-3 animate-bounce-slow">
                     {winner.name}
                   </p>
+                  {winner.phone && (
+                    <p className="text-white/50 text-base" dir="ltr">****{winner.phone.replace(/\D/g, "").slice(-4)}</p>
+                  )}
                   {winner.extra && <p className="text-white/40 text-sm mt-1">{winner.extra}</p>}
                   {winner.percentage !== undefined && (
                     <div className="mt-4">
