@@ -95,6 +95,13 @@ export default function DrawPage() {
 // =====================================================
 // Quiz Draw Tab (existing functionality)
 // =====================================================
+function PhoneCell({ phone, id }: { phone: string | null; id: number }) {
+  const [visible, setVisible] = useState(false);
+  if (!phone) return <span>-</span>;
+  if (visible) return <button onClick={() => setVisible(false)} className="text-white/60 hover:text-white transition-colors">{phone}</button>;
+  return <button onClick={() => setVisible(true)} className="text-ramadan-gold/70 hover:text-ramadan-gold text-xs font-medium transition-colors">عرض</button>;
+}
+
 function QuizDrawTab() {
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -229,7 +236,7 @@ function QuizDrawTab() {
                     <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
                       <td className="p-3 text-ramadan-gold font-bold">{w.name}</td>
-                      <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
+                      <td className="p-3 text-sm" dir="ltr"><PhoneCell phone={w.phone} id={w.id} /></td>
                       <td className="p-3">
                         <span className="inline-block px-3 py-1 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-sm font-bold">
                           {Math.round(w.percentage)}%
@@ -541,7 +548,7 @@ function WeeklyDrawTab() {
                         <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                           <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
                           <td className="p-3 text-ramadan-gold font-bold">{w.name}</td>
-                          <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
+                          <td className="p-3 text-sm" dir="ltr"><PhoneCell phone={w.phone} id={w.id} /></td>
                           <td className="p-3 text-white/60 text-sm">{w.quiz.title}</td>
                           <td className="p-3">
                             <span className="inline-block px-3 py-1 bg-ramadan-gold/20 text-ramadan-gold rounded-full text-sm font-bold">
@@ -1013,7 +1020,7 @@ function WinnersListTab() {
                         <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                           <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
                           <td className="p-3 text-white font-medium">{w.name}</td>
-                          <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
+                          <td className="p-3 text-sm" dir="ltr"><PhoneCell phone={w.phone} id={w.id} /></td>
                           <td className="p-3">
                             <span className="inline-block px-3 py-1 bg-success/20 text-success rounded-full text-sm font-bold">
                               {Math.round(w.percentage)}%
