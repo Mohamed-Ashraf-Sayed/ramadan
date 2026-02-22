@@ -63,7 +63,7 @@ export async function DELETE(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { quizId, name, phone, score, totalPoints, percentage, drawType } = body;
+    const { quizId, name, phone, score, totalPoints, percentage, drawType, weekNumber } = body;
 
     if (!quizId || !name) {
       return NextResponse.json(
@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
         totalPoints: totalPoints || 0,
         percentage: percentage || 0,
         drawType: drawType || "quiz",
+        weekNumber: weekNumber || null,
       },
       include: {
         quiz: {

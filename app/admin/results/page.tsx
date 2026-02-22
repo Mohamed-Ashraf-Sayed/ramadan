@@ -276,40 +276,6 @@ export default function AdminResultsPage() {
         </div>
       )}
 
-      {/* Suggestions List */}
-      {!loading && submissions.filter((s) => s.notes).length > 0 && (
-        <div className="bg-ramadan-purple/30 border border-ramadan-gold/20 rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-ramadan-gold/10 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-ramadan-gold flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-              </svg>
-              الاقتراحات والملاحظات
-            </h3>
-            <span className="text-xs bg-ramadan-gold/20 text-ramadan-gold px-3 py-1 rounded-full font-bold">
-              {submissions.filter((s) => s.notes).length}
-            </span>
-          </div>
-          <div className="divide-y divide-white/5">
-            {submissions
-              .filter((s) => s.notes)
-              .map((s) => (
-                <div key={s.id} className="px-5 py-4 hover:bg-white/5 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <p className="text-white/80 text-sm whitespace-pre-wrap">{s.notes}</p>
-                    </div>
-                    <div className="text-left flex-shrink-0">
-                      <p className="text-white/50 text-xs">{s.name}</p>
-                      <p className="text-white/30 text-xs">{s.quiz.title}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
       {/* Answers Modal */}
       {(viewingSubmission || loadingDetails) && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">

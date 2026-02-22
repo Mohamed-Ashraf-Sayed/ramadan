@@ -22,6 +22,7 @@ interface SavedDrawWinner {
   score: number;
   totalPoints: number;
   percentage: number;
+  weekNumber: number | null;
   createdAt: string;
   quiz: { id: number; title: string };
 }
@@ -51,7 +52,7 @@ export default function DrawPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            سحب الاختبار
+            السحب اليومي
           </span>
         </button>
         <button
@@ -334,34 +335,69 @@ function QuizDrawTab() {
 // =====================================================
 // Weekly Draw Tab - uses saved draw winners from API
 // =====================================================
+const WEEK_OPTIONS = [
+  { value: 1, label: "الأسبوع الأول" },
+  { value: 2, label: "الأسبوع الثاني" },
+  { value: 3, label: "الأسبوع الثالث" },
+  { value: 4, label: "الأسبوع الرابع" },
+  { value: 5, label: "الأسبوع الخامس" },
+];
+
 function WeeklyDrawTab() {
   const { toast } = useToast();
-  const [fromDate, setFromDate] = useState(() => formatDateStr(new Date()));
-  const [toDate, setToDate] = useState(() => formatDateStr(new Date()));
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [selectedQuizIds, setSelectedQuizIds] = useState<Set<number>>(new Set());
+  const [selectedWeek, setSelectedWeek] = useState<number>(1);
   const [passedSubmissions, setPassedSubmissions] = useState<(Submission & { quiz: Quiz })[]>([]);
   const [quizDrawWinners, setQuizDrawWinners] = useState<SavedDrawWinner[]>([]);
   const [savedWeeklyWinners, setSavedWeeklyWinners] = useState<SavedDrawWinner[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
 
+  useEffect(() => {
+    fetch("/api/quizzes?all=true")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setQuizzes);
+  }, []);
+
+  function toggleQuiz(id: number) {
+    setSelectedQuizIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function selectAll() {
+    if (selectedQuizIds.size === quizzes.length) {
+      setSelectedQuizIds(new Set());
+    } else {
+      setSelectedQuizIds(new Set(quizzes.map((q) => q.id)));
+    }
+  }
+
   function fetchData() {
-    if (!fromDate || !toDate) return;
+    if (selectedQuizIds.size === 0) return;
     setLoading(true);
     setFetched(true);
-    // Fetch all submissions in the date range
-    const submissionsPromise = fetch(`/api/submissions?fromDate=${fromDate}&toDate=${toDate}`)
+
+    // Fetch submissions for each selected quiz
+    const quizIdArr = Array.from(selectedQuizIds);
+    const submissionsPromises = quizIdArr.map((qid) =>
+      fetch(`/api/submissions?quizId=${qid}`).then((r) => (r.ok ? r.json() : []))
+    );
+    // Fetch all quiz draw winners (to exclude them)
+    const quizWinnersPromise = fetch(`/api/draw-winners?drawType=quiz`)
       .then((r) => (r.ok ? r.json() : []));
-    // Fetch quiz draw winners (to exclude them)
-    const quizWinnersPromise = fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}&drawType=quiz`)
-      .then((r) => (r.ok ? r.json() : []));
-    // Fetch already saved weekly draw winners
-    const weeklyWinnersPromise = fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}&drawType=weekly`)
+    // Fetch all weekly draw winners
+    const weeklyWinnersPromise = fetch(`/api/draw-winners?drawType=weekly`)
       .then((r) => (r.ok ? r.json() : []));
 
-    Promise.all([submissionsPromise, quizWinnersPromise, weeklyWinnersPromise])
-      .then(([subs, quizW, weeklyW]) => {
-        // Filter to only passed submissions (>60%)
-        setPassedSubmissions(subs.filter((s: Submission) => s.percentage > 60));
+    Promise.all([Promise.all(submissionsPromises), quizWinnersPromise, weeklyWinnersPromise])
+      .then(([subsArrays, quizW, weeklyW]) => {
+        const allSubs = subsArrays.flat();
+        setPassedSubmissions(allSubs.filter((s: Submission) => s.percentage > 60));
         setQuizDrawWinners(quizW);
         setSavedWeeklyWinners(weeklyW);
       })
@@ -371,7 +407,6 @@ function WeeklyDrawTab() {
 
   // Build candidates: passed submissions minus quiz draw winners
   const drawCandidates = useMemo(() => {
-    // Build a set of quiz winner identifiers (name+phone) to exclude
     const winnerKeys = new Set(
       quizDrawWinners.map((w) => `${w.name}||${w.phone || ""}`)
     );
@@ -394,34 +429,72 @@ function WeeklyDrawTab() {
 
   return (
     <div className="space-y-6">
-      {/* Date Range Selector */}
+      {/* Quiz Selector */}
       <div className="bg-ramadan-purple/50 border border-ramadan-gold/20 rounded-xl p-6">
-        <h3 className="text-lg font-bold text-ramadan-gold mb-4">تحديد فترة السحب</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-white/60 mb-2">من تاريخ</label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-ramadan-purple/50 border border-ramadan-gold/20 text-white focus:outline-none focus:ring-2 focus:ring-ramadan-gold/50"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-white/60 mb-2">إلى تاريخ</label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-ramadan-purple/50 border border-ramadan-gold/20 text-white focus:outline-none focus:ring-2 focus:ring-ramadan-gold/50"
-            />
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-ramadan-gold">اختر المسابقات</h3>
+          <button
+            onClick={selectAll}
+            className="text-xs text-ramadan-gold/70 hover:text-ramadan-gold transition-colors px-3 py-1 border border-ramadan-gold/20 rounded-lg"
+          >
+            {selectedQuizIds.size === quizzes.length ? "إلغاء الكل" : "تحديد الكل"}
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+          {quizzes.map((q) => {
+            const selected = selectedQuizIds.has(q.id);
+            return (
+              <button
+                key={q.id}
+                onClick={() => toggleQuiz(q.id)}
+                className={`text-right px-4 py-3 rounded-xl border transition-all duration-200 ${
+                  selected
+                    ? "bg-ramadan-gold/20 border-ramadan-gold/50 text-ramadan-gold"
+                    : "bg-ramadan-purple/30 border-white/10 text-white/60 hover:border-ramadan-gold/30 hover:text-white/80"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                    selected ? "border-ramadan-gold bg-ramadan-gold" : "border-white/30"
+                  }`}>
+                    {selected && (
+                      <svg className="w-3 h-3 text-ramadan-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium truncate">{q.title}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Week Selector */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-white/60 mb-2">رقم الأسبوع</label>
+          <div className="flex gap-2 flex-wrap">
+            {WEEK_OPTIONS.map((w) => (
+              <button
+                key={w.value}
+                onClick={() => setSelectedWeek(w.value)}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 border ${
+                  selectedWeek === w.value
+                    ? "bg-ramadan-gold/20 border-ramadan-gold/50 text-ramadan-gold"
+                    : "bg-ramadan-purple/30 border-white/10 text-white/50 hover:border-ramadan-gold/30"
+                }`}
+              >
+                {w.label}
+              </button>
+            ))}
           </div>
         </div>
-        <Button onClick={fetchData} disabled={!fromDate || !toDate}>
+
+        <Button onClick={fetchData} disabled={selectedQuizIds.size === 0}>
           <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          عرض المشاركين
+          عرض المشاركين ({selectedQuizIds.size} مسابقة)
         </Button>
 
         {fetched && !loading && (
@@ -451,14 +524,14 @@ function WeeklyDrawTab() {
         <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
           <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
             <svg className="w-10 h-10 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <p className="text-white/40 text-lg">حدد فترة السحب واضغط &quot;عرض المشاركين&quot;</p>
+          <p className="text-white/40 text-lg">حدد المسابقات واضغط &quot;عرض المشاركين&quot;</p>
         </div>
       )}
 
-      {/* No passed submissions in range */}
+      {/* No passed submissions */}
       {fetched && !loading && drawCandidates.length === 0 && (
         <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
           <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
@@ -477,7 +550,7 @@ function WeeklyDrawTab() {
           {/* Draw Machine */}
           <DrawMachine
             candidates={drawCandidates}
-            title={`السحب الأسبوعي بين ${drawCandidates.length} مشارك ناجح`}
+            title={`${WEEK_OPTIONS.find(w => w.value === selectedWeek)?.label} - ${drawCandidates.length} مشارك ناجح`}
             totalParticipants={drawCandidates.length}
             showConfirmButton
             onWinnerConfirmed={async (winner) => {
@@ -501,6 +574,7 @@ function WeeklyDrawTab() {
                     totalPoints: winner.totalPoints,
                     percentage: winner.percentage,
                     drawType: "weekly",
+                    weekNumber: selectedWeek,
                   }),
                 });
                 if (res.ok) {
@@ -532,7 +606,7 @@ function WeeklyDrawTab() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-ramadan-gold/10">
-                      <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
+                      <th className="text-right text-white/60 text-sm font-medium p-3">الأسبوع</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">الجوال</th>
                       <th className="text-right text-white/60 text-sm font-medium p-3">الاختبار الأصلي</th>
@@ -542,11 +616,10 @@ function WeeklyDrawTab() {
                   </thead>
                   <tbody>
                     {savedWeeklyWinners.map((w) => {
-                      const d = new Date(w.createdAt);
-                      const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+                      const weekLabel = w.weekNumber ? WEEK_OPTIONS.find(o => o.value === w.weekNumber)?.label || `أسبوع ${w.weekNumber}` : "-";
                       return (
                         <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                          <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
+                          <td className="p-3 text-amber-400 text-sm font-bold whitespace-nowrap">{weekLabel}</td>
                           <td className="p-3 text-ramadan-gold font-bold">{w.name}</td>
                           <td className="p-3 text-sm" dir="ltr"><PhoneCell phone={w.phone} id={w.id} /></td>
                           <td className="p-3 text-white/60 text-sm">{w.quiz.title}</td>

@@ -46,6 +46,23 @@ export default async function Home() {
     winnersByQuiz[w.quizId].winners.push({ name: w.name, createdAt: w.createdAt });
   }
 
+  // Group weekly winners by weekNumber field
+  const weekNames: Record<number, string> = { 1: "الأسبوع الأول", 2: "الأسبوع الثاني", 3: "الأسبوع الثالث", 4: "الأسبوع الرابع", 5: "الأسبوع الخامس" };
+  const weeklyByWeek: { weekLabel: string; winners: { name: string }[] }[] = [];
+  if (weeklyDrawWinners.length > 0) {
+    const weekMap = new Map<number, { name: string }[]>();
+    for (const w of weeklyDrawWinners) {
+      const wn = w.weekNumber || 1;
+      if (!weekMap.has(wn)) weekMap.set(wn, []);
+      weekMap.get(wn)!.push({ name: w.name });
+    }
+    // Sort by week number
+    const sortedKeys = [...weekMap.keys()].sort((a, b) => a - b);
+    for (const wn of sortedKeys) {
+      weeklyByWeek.push({ weekLabel: weekNames[wn] || `الأسبوع ${wn}`, winners: weekMap.get(wn)! });
+    }
+  }
+
   const avgPerQuiz = quizCount > 0 ? Math.round(submissionCount / quizCount) : 0;
   const highestDay = highestDayResult.length > 0 ? Number(highestDayResult[0].cnt) : 0;
   const malePercent = submissionCount > 0 ? ((maleCount / submissionCount) * 100).toFixed(2) : "0";
@@ -229,7 +246,7 @@ export default async function Home() {
         )}
 
         {/* ===== WEEKLY WINNERS SECTION ===== */}
-        {weeklyDrawWinners.length > 0 && (
+        {weeklyByWeek.length > 0 && (
           <section className="py-24 px-4 bg-gradient-to-b from-[#0f2b46] via-[#122a44] to-[#0a1929] relative overflow-hidden">
             <div className="absolute inset-0 pointer-events-none">
               {[...Array(15)].map((_, i) => (
@@ -241,7 +258,7 @@ export default async function Home() {
               ))}
             </div>
 
-            <div className="max-w-4xl mx-auto relative z-10">
+            <div className="max-w-7xl mx-auto relative z-10">
               <div className="text-center mb-16">
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <svg className="w-8 h-8 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
@@ -256,19 +273,24 @@ export default async function Home() {
                 </p>
               </div>
 
-              <div className="space-y-4">
-                {weeklyDrawWinners.map((w, i) => (
-                  <div key={w.id} className="flex items-center gap-4 bg-gradient-to-r from-amber-500/10 to-transparent border-2 border-amber-400/30 rounded-2xl px-6 py-5 shadow-lg shadow-amber-500/5">
-                    <div className="w-12 h-12 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0 border-2 border-amber-400/50">
-                      <span className="text-amber-400 font-bold text-lg">{i + 1}</span>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {weeklyByWeek.map((week, idx) => (
+                  <div key={idx} className="bg-gradient-to-br from-[#1a3a5c] to-[#0f2b46] border-2 border-amber-400/30 rounded-2xl overflow-hidden shadow-xl shadow-amber-500/10">
+                    <div className="bg-gradient-to-r from-amber-400/20 to-amber-400/10 border-b-2 border-amber-400/30 px-6 py-4">
+                      <h3 className="font-bold text-amber-400 text-xl">{week.weekLabel}</h3>
                     </div>
-                    <div className="flex-1">
-                      <span className="text-white text-xl font-bold">{w.name}</span>
-                      <p className="text-white/40 text-sm mt-1">{w.quiz.title}</p>
+                    <div className="p-6 space-y-4">
+                      {week.winners.map((w, i) => (
+                        <div key={i} className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3 border border-white/10">
+                          <div className="w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0 border border-amber-400/40">
+                            <svg className="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                            </svg>
+                          </div>
+                          <span className="text-white text-lg font-bold">{w.name}</span>
+                        </div>
+                      ))}
                     </div>
-                    <svg className="w-6 h-6 text-amber-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                    </svg>
                   </div>
                 ))}
               </div>

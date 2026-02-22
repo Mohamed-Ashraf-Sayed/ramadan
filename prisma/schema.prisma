@@ -66,6 +66,7 @@ model DrawWinner {
   totalPoints Int
   percentage  Float
   drawType  String   @default("quiz") // "quiz" or "weekly"
+  weekNumber Int?    // 1, 2, 3... for weekly draws
   createdAt DateTime @default(now())
 
   @@index([quizId])
