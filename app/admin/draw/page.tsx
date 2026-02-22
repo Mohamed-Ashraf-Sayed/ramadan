@@ -331,46 +331,59 @@ function WeeklyDrawTab() {
   const { toast } = useToast();
   const [fromDate, setFromDate] = useState(() => formatDateStr(new Date()));
   const [toDate, setToDate] = useState(() => formatDateStr(new Date()));
-  const [winners, setWinners] = useState<SavedDrawWinner[]>([]);
+  const [passedSubmissions, setPassedSubmissions] = useState<(Submission & { quiz: Quiz })[]>([]);
+  const [quizDrawWinners, setQuizDrawWinners] = useState<SavedDrawWinner[]>([]);
   const [savedWeeklyWinners, setSavedWeeklyWinners] = useState<SavedDrawWinner[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
 
-  function fetchWinners() {
+  function fetchData() {
     if (!fromDate || !toDate) return;
     setLoading(true);
     setFetched(true);
-    // Fetch quiz draw winners (candidates for weekly draw)
+    // Fetch all submissions in the date range
+    const submissionsPromise = fetch(`/api/submissions?fromDate=${fromDate}&toDate=${toDate}`)
+      .then((r) => (r.ok ? r.json() : []));
+    // Fetch quiz draw winners (to exclude them)
     const quizWinnersPromise = fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}&drawType=quiz`)
       .then((r) => (r.ok ? r.json() : []));
     // Fetch already saved weekly draw winners
     const weeklyWinnersPromise = fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}&drawType=weekly`)
       .then((r) => (r.ok ? r.json() : []));
 
-    Promise.all([quizWinnersPromise, weeklyWinnersPromise])
-      .then(([quizW, weeklyW]) => {
-        setWinners(quizW);
+    Promise.all([submissionsPromise, quizWinnersPromise, weeklyWinnersPromise])
+      .then(([subs, quizW, weeklyW]) => {
+        // Filter to only passed submissions (>60%)
+        setPassedSubmissions(subs.filter((s: Submission) => s.percentage > 60));
+        setQuizDrawWinners(quizW);
         setSavedWeeklyWinners(weeklyW);
       })
-      .catch(() => { setWinners([]); setSavedWeeklyWinners([]); })
+      .catch(() => { setPassedSubmissions([]); setQuizDrawWinners([]); setSavedWeeklyWinners([]); })
       .finally(() => setLoading(false));
   }
 
-  // Convert to DrawMachine candidates
+  // Build candidates: passed submissions minus quiz draw winners
   const drawCandidates = useMemo(() => {
-    return winners.map((w) => {
-      const d = new Date(w.createdAt);
-      const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
-      return {
-        name: w.name,
-        phone: w.phone || undefined,
-        percentage: w.percentage,
-        score: w.score,
-        totalPoints: w.totalPoints,
-        extra: `${dayLabel} - ${w.quiz.title}`,
-      };
-    });
-  }, [winners]);
+    // Build a set of quiz winner identifiers (name+phone) to exclude
+    const winnerKeys = new Set(
+      quizDrawWinners.map((w) => `${w.name}||${w.phone || ""}`)
+    );
+
+    return passedSubmissions
+      .filter((s) => !winnerKeys.has(`${s.name}||${s.phone || ""}`))
+      .map((s) => {
+        const d = new Date(s.createdAt);
+        const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+        return {
+          name: s.name,
+          phone: s.phone || undefined,
+          percentage: s.percentage,
+          score: s.score,
+          totalPoints: s.totalPoints,
+          extra: `${dayLabel} - ${s.quiz.title} - ${Math.round(s.percentage)}%`,
+        };
+      });
+  }, [passedSubmissions, quizDrawWinners]);
 
   return (
     <div className="space-y-6">
@@ -397,17 +410,23 @@ function WeeklyDrawTab() {
             />
           </div>
         </div>
-        <Button onClick={fetchWinners} disabled={!fromDate || !toDate}>
+        <Button onClick={fetchData} disabled={!fromDate || !toDate}>
           <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          عرض الفائزين
+          عرض المشاركين
         </Button>
 
         {fetched && !loading && (
           <div className="mt-4 flex items-center gap-6 text-sm flex-wrap">
             <span className="text-white/60">
-              فائزين السحوبات: <strong className="text-ramadan-gold">{winners.length}</strong>
+              الناجحين (أعلى من 60%): <strong className="text-ramadan-gold">{passedSubmissions.length}</strong>
+            </span>
+            <span className="text-white/60">
+              فائزين السحب اليومي (مستبعدين): <strong className="text-error">{quizDrawWinners.length}</strong>
+            </span>
+            <span className="text-white/60">
+              المؤهلين للسحب الأسبوعي: <strong className="text-success">{drawCandidates.length}</strong>
             </span>
           </div>
         )}
@@ -428,78 +447,39 @@ function WeeklyDrawTab() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <p className="text-white/40 text-lg">حدد فترة السحب واضغط &quot;عرض الفائزين&quot;</p>
+          <p className="text-white/40 text-lg">حدد فترة السحب واضغط &quot;عرض المشاركين&quot;</p>
         </div>
       )}
 
-      {/* No winners in range */}
-      {fetched && !loading && winners.length === 0 && (
+      {/* No passed submissions in range */}
+      {fetched && !loading && drawCandidates.length === 0 && (
         <div className="bg-ramadan-purple/20 border border-ramadan-gold/10 rounded-xl py-20 text-center">
           <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-gold/10 rounded-full flex items-center justify-center">
             <svg className="w-10 h-10 text-ramadan-gold/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-white/40 text-lg">لا يوجد فائزين محفوظين في هذه الفترة</p>
-          <p className="text-white/30 text-sm mt-2">قم بعمل سحب في تاب &quot;سحب الاختبار&quot; وتأكيد الفائز أولاً</p>
+          <p className="text-white/40 text-lg">لا يوجد مشاركين مؤهلين للسحب الأسبوعي</p>
+          <p className="text-white/30 text-sm mt-2">يجب أن يكون هناك مشاركين ناجحين (أعلى من 60%) ولم يفوزوا في السحب اليومي</p>
         </div>
       )}
 
-      {/* Winners Table + Draw */}
-      {fetched && !loading && winners.length > 0 && (
+      {/* Candidates Table + Draw */}
+      {fetched && !loading && drawCandidates.length > 0 && (
         <>
-          <div className="bg-ramadan-purple/30 border border-ramadan-gold/20 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-ramadan-gold/10">
-              <h3 className="text-lg font-bold text-ramadan-gold">فائزين السحوبات</h3>
-              <p className="text-white/40 text-sm mt-1">الفائزين المؤكدين من سحوبات الاختبارات في الفترة المحددة</p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-right text-white/60 text-sm font-medium p-3">التاريخ</th>
-                    <th className="text-right text-white/60 text-sm font-medium p-3">الاسم</th>
-                    <th className="text-right text-white/60 text-sm font-medium p-3">الجوال</th>
-                    <th className="text-right text-white/60 text-sm font-medium p-3">الاختبار</th>
-                    <th className="text-right text-white/60 text-sm font-medium p-3">النتيجة</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {winners.map((w) => {
-                    const d = new Date(w.createdAt);
-                    const dayLabel = `${DAY_NAMES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
-                    return (
-                      <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <td className="p-3 text-white/80 text-sm whitespace-nowrap">{dayLabel}</td>
-                        <td className="p-3 text-white font-medium">{w.name}</td>
-                        <td className="p-3 text-white/60 text-sm" dir="ltr">{w.phone || "-"}</td>
-                        <td className="p-3 text-white/60 text-sm">{w.quiz.title}</td>
-                        <td className="p-3">
-                          <span className="inline-block px-3 py-1 bg-success/20 text-success rounded-full text-sm font-bold">
-                            {Math.round(w.percentage)}%
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
           {/* Draw Machine */}
           <DrawMachine
             candidates={drawCandidates}
-            title={`السحب الأسبوعي بين ${drawCandidates.length} فائز`}
+            title={`السحب الأسبوعي بين ${drawCandidates.length} مشارك ناجح`}
             totalParticipants={drawCandidates.length}
             showConfirmButton
             onWinnerConfirmed={async (winner) => {
-              // Find the original winner record to get the quizId
-              const originalWinner = winners.find(
-                (w) => w.name === winner.name && w.phone === (winner.phone || null)
+              // Find the original submission to get the quizId
+              const originalSub = passedSubmissions.find(
+                (s) => s.name === winner.name && (s.phone || "") === (winner.phone || "")
               );
-              if (!originalWinner) {
-                toast("حدث خطأ - لم يتم العثور على بيانات الفائز", "error");
+              if (!originalSub) {
+                toast("حدث خطأ - لم يتم العثور على بيانات المشارك", "error");
                 return;
               }
               try {
@@ -507,7 +487,7 @@ function WeeklyDrawTab() {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
-                    quizId: originalWinner.quizId,
+                    quizId: originalSub.quizId,
                     name: winner.name,
                     phone: winner.phone || null,
                     score: winner.score,
@@ -518,11 +498,7 @@ function WeeklyDrawTab() {
                 });
                 if (res.ok) {
                   toast("تم حفظ فائز السحب الأسبوعي بنجاح", "success");
-                  // Refresh weekly winners
-                  fetch(`/api/draw-winners?fromDate=${fromDate}&toDate=${toDate}&drawType=weekly`)
-                    .then((r) => (r.ok ? r.json() : []))
-                    .then(setSavedWeeklyWinners)
-                    .catch(() => {});
+                  fetchData();
                 } else {
                   const data = await res.json().catch(() => ({}));
                   toast(data.error || "حدث خطأ أثناء حفظ الفائز", "error");
@@ -580,7 +556,7 @@ function WeeklyDrawTab() {
                                   const res = await fetch(`/api/draw-winners?id=${w.id}`, { method: "DELETE" });
                                   if (res.ok) {
                                     toast("تم حذف الفائز", "success");
-                                    fetchWinners();
+                                    fetchData();
                                   } else {
                                     toast("حدث خطأ أثناء الحذف", "error");
                                   }
