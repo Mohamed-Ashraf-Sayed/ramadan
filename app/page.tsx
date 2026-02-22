@@ -13,6 +13,7 @@ export default async function Home() {
     femaleCount,
     highestDayResult,
     drawWinners,
+    weeklyDrawWinners,
   ] = await Promise.all([
     prisma.quiz.count(),
     prisma.submission.count(),
@@ -26,6 +27,11 @@ export default async function Home() {
     `,
     prisma.drawWinner.findMany({
       where: { drawType: "quiz" },
+      include: { quiz: { select: { id: true, title: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.drawWinner.findMany({
+      where: { drawType: "weekly" },
       include: { quiz: { select: { id: true, title: true } } },
       orderBy: { createdAt: "desc" },
     }),
@@ -215,6 +221,54 @@ export default async function Home() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ===== WEEKLY WINNERS SECTION ===== */}
+        {weeklyDrawWinners.length > 0 && (
+          <section className="py-24 px-4 bg-gradient-to-b from-[#0f2b46] via-[#122a44] to-[#0a1929] relative overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none">
+              {[...Array(15)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1 h-1 bg-amber-400 rounded-full animate-twinkle"
+                  style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 3}s`, opacity: 0.3 }}
+                />
+              ))}
+            </div>
+
+            <div className="max-w-4xl mx-auto relative z-10">
+              <div className="text-center mb-16">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <svg className="w-8 h-8 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-amber-400 mb-6">
+                  فائزين السحب الأسبوعي
+                </h2>
+                <p className="text-lg text-white/70">
+                  الفائزين في السحوبات الأسبوعية لمسابقات سنا الرمضانية
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {weeklyDrawWinners.map((w, i) => (
+                  <div key={w.id} className="flex items-center gap-4 bg-gradient-to-r from-amber-500/10 to-transparent border-2 border-amber-400/30 rounded-2xl px-6 py-5 shadow-lg shadow-amber-500/5">
+                    <div className="w-12 h-12 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0 border-2 border-amber-400/50">
+                      <span className="text-amber-400 font-bold text-lg">{i + 1}</span>
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-white text-xl font-bold">{w.name}</span>
+                      <p className="text-white/40 text-sm mt-1">{w.quiz.title}</p>
+                    </div>
+                    <svg className="w-6 h-6 text-amber-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
                   </div>
                 ))}
               </div>
