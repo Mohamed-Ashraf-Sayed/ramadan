@@ -70,6 +70,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
     }
 
+    // Check if quiz time has expired
+    if (quiz.startedAt && quiz.timeLimit) {
+      const endsAt = new Date(quiz.startedAt);
+      endsAt.setHours(endsAt.getHours() + quiz.timeLimit);
+      if (new Date() > endsAt) {
+        await prisma.quiz.update({
+          where: { id: quiz.id },
+          data: { isActive: false },
+        });
+        return NextResponse.json({ error: "انتهى وقت المسابقة" }, { status: 400 });
+      }
+    }
+
     // Helper function to parse JSON field
     function parseJsonField<T>(value: unknown): T {
       if (typeof value === "string") {

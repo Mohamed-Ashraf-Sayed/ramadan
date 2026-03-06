@@ -44,6 +44,19 @@ export async function GET(
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
     }
 
+    // Auto-deactivate if time limit has passed
+    if (quiz.isActive && quiz.startedAt && quiz.timeLimit) {
+      const endsAt = new Date(quiz.startedAt);
+      endsAt.setHours(endsAt.getHours() + quiz.timeLimit);
+      if (new Date() > endsAt) {
+        await prisma.quiz.update({
+          where: { id: quiz.id },
+          data: { isActive: false },
+        });
+        quiz.isActive = false;
+      }
+    }
+
     return NextResponse.json(quiz);
   } catch (error) {
     console.error("Error fetching quiz:", error);
