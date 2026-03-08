@@ -20,7 +20,6 @@ export default function QuizStartPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string | string[] | boolean>>({});
   const [participant, setParticipant] = useState<ParticipantInfo | null>(null);
-  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -88,7 +87,7 @@ export default function QuizStartPage() {
           quizId: parseInt(quizId),
           ...participant,
           answers,
-          notes: notes.trim() || undefined,
+          notes: undefined,
           fingerprint,
         }),
       });
@@ -106,7 +105,7 @@ export default function QuizStartPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [participant, submitting, quizId, answers, notes, router]);
+  }, [participant, submitting, quizId, answers, router]);
 
   if (loading) {
     return (
@@ -269,25 +268,6 @@ export default function QuizStartPage() {
             </Button>
           )}
         </div>
-
-        {/* Notes & Suggestions - shown on last question */}
-        {isLastQuestion && (
-          <Card variant="elevated" className="mt-6">
-            <CardContent className="py-5">
-              <label className="block text-sm font-medium text-foreground mb-2">
-                ملاحظات واقتراحات (اختياري)
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="اكتب ملاحظاتك أو اقتراحاتك هنا..."
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none text-sm resize-none transition-colors"
-                rows={3}
-                dir="rtl"
-              />
-            </CardContent>
-          </Card>
-        )}
 
         {/* Warning if not all answered */}
         {isLastQuestion && answeredCount < questions.length && (

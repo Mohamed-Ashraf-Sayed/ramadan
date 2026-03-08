@@ -40,6 +40,31 @@ export async function GET(
   }
 }
 
+// PATCH /api/submissions/[id] - Update submission notes
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const { notes } = body;
+
+    const submission = await prisma.submission.update({
+      where: { id: parseInt(id) },
+      data: { notes: notes || null },
+    });
+
+    return NextResponse.json(submission);
+  } catch (error) {
+    console.error("Error updating submission:", error);
+    return NextResponse.json(
+      { error: "Failed to update submission" },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/submissions/[id] - Delete a submission (Admin only)
 export async function DELETE(
   request: NextRequest,
