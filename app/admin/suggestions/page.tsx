@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import * as XLSX from "xlsx";
 
 interface Suggestion {
   id: number;
@@ -46,6 +47,37 @@ export default function SuggestionsPage() {
       s.quiz.title.includes(search)
   );
 
+  function exportToExcel() {
+    if (filtered.length === 0) return;
+
+    const data = filtered.map((s) => ({
+      "الاسم": s.name,
+      "رقم الجوال": s.phone || "",
+      "المسابقة": s.quiz.title,
+      "الرسالة": s.notes,
+      "التاريخ": new Date(s.createdAt).toLocaleDateString("ar-EG"),
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Set RTL direction
+    ws["!dir"] = "rtl";
+
+    // Set column widths
+    ws["!cols"] = [
+      { wch: 20 }, // الاسم
+      { wch: 15 }, // رقم الجوال
+      { wch: 25 }, // المسابقة
+      { wch: 50 }, // الرسالة
+      { wch: 15 }, // التاريخ
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "الاقتراحات");
+
+    XLSX.writeFile(wb, `اقتراحات_${new Date().toLocaleDateString("ar-EG")}.xlsx`);
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -58,9 +90,21 @@ export default function SuggestionsPage() {
             ملاحظات واقتراحات المشاركين
           </p>
         </div>
-        <span className="text-sm bg-ramadan-gold/20 text-ramadan-gold px-4 py-2 rounded-full font-bold">
-          {filtered.length} اقتراح
-        </span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={exportToExcel}
+            disabled={filtered.length === 0}
+            className="flex items-center gap-2 text-sm bg-success/20 text-success px-4 py-2 rounded-full font-bold hover:bg-success/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            تصدير Excel
+          </button>
+          <span className="text-sm bg-ramadan-gold/20 text-ramadan-gold px-4 py-2 rounded-full font-bold">
+            {filtered.length} اقتراح
+          </span>
+        </div>
       </div>
 
       {/* Search */}
